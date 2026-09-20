@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <title>Mohan Murge Wala &mdash; Order &amp; Receipt Desk</title>
+  <meta name="description" content="Order and receipt desk for Mohan Murge Wala restaurant.">
+  <meta name="theme-color" content="#211A15">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mohan POS">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Libre+Franklin:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">MM</span>
+      <div class="brand-text">
+        <h1>Mohan Murge Wala</h1>
+        <p class="brand-tag">Order &amp; Receipt Desk</p>
+      </div>
+    </div>
+    <button id="newOrderBtn" class="btn btn-primary btn-lg" type="button">+ New Order</button>
+  </header>
+
+  <div id="storageBanner" class="storage-banner" role="alert" hidden></div>
+
+  <main id="main">
+    <!-- ===================== HOME VIEW ===================== -->
+    <section id="homeView" class="view">
+      <div class="view-heading">
+        <h2>Saved Orders</h2>
+        <p id="orderCount" class="muted"></p>
+      </div>
+
+      <div id="ordersEmpty" class="empty-state" hidden>
+        <p><strong>No saved orders yet.</strong></p>
+        <p class="muted">Tap &ldquo;New Order&rdquo; to start taking an order.</p>
+      </div>
+
+      <div id="ordersGrid" class="orders-grid"></div>
+    </section>
+
+    <!-- ===================== ORDER BUILDER VIEW ===================== -->
+    <section id="builderView" class="view" hidden>
+      <div class="builder-layout">
+        <div class="builder-menu">
+          <div class="builder-top">
+            <button id="backToHomeBtn" class="btn btn-ghost" type="button">&larr; Back</button>
+            <div class="field table-field">
+              <label for="tableNumberInput">Table number</label>
+              <input id="tableNumberInput" type="text" inputmode="text" placeholder="e.g. 4, A1, T5" autocomplete="off" maxlength="10">
+              <p id="tableNumberError" class="field-error" role="alert" hidden></p>
+            </div>
+          </div>
+
+          <div class="menu-controls">
+            <div class="field search-field">
+              <label for="menuSearchInput">Search menu</label>
+              <input id="menuSearchInput" type="search" placeholder="Search dishes&hellip;" autocomplete="off">
+            </div>
+            <div class="chip-row" id="categoryChips" role="group" aria-label="Filter by category"></div>
+            <div class="chip-row" id="portionChips" role="group" aria-label="Filter by portion"></div>
+          </div>
+
+          <div id="menuEmpty" class="empty-state" hidden>
+            <p><strong>No matching items found.</strong></p>
+            <p class="muted">Try another search or category.</p>
+          </div>
+          <div id="menuGrid" class="menu-grid"></div>
+        </div>
+
+        <aside class="builder-cart" aria-label="Current order">
+          <h2>Current Order</h2>
+          <div id="cartEmpty" class="empty-state">
+            <p>No items added yet.</p>
+          </div>
+          <ul id="cartList" class="cart-list"></ul>
+          <div class="cart-total-row">
+            <span>Total</span>
+            <span id="cartTotal">&#8377;0</span>
+          </div>
+          <p id="orderError" class="field-error" role="alert" hidden></p>
+          <div class="cart-actions">
+            <button id="saveOrderBtn" class="btn btn-primary btn-lg" type="button">Save Order</button>
+            <button id="cancelOrderBtn" class="btn btn-ghost" type="button">Cancel</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div id="confirmDialog" class="dialog-overlay" hidden>
+    <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dialogTitle">
+      <h2 id="dialogTitle">Delete this order?</h2>
+      <p id="dialogMessage"></p>
+      <div class="dialog-actions">
+        <button id="dialogCancelBtn" class="btn btn-ghost" type="button">Cancel</button>
+        <button id="dialogConfirmBtn" class="btn btn-danger" type="button">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="./main.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.MohanPOS && typeof MohanPOS.initApp === "function") {
+        MohanPOS.initApp();
+      } else {
+        document.body.innerHTML = "<p style='padding:20px;font-family:sans-serif'>The application failed to load. Please refresh the page.</p>";
+      }
+    });
+  </script>
+</body>
+</html>

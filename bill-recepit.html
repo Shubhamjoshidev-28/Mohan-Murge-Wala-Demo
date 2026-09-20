@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bill Receipt &mdash; Mohan Murge Wala</title>
+  <meta name="theme-color" content="#211A15">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Libre+Franklin:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="receipt-page-body">
+
+  <div class="receipt-toolbar no-print">
+    <a href="index.html" class="btn btn-ghost btn-sm">&larr; Back to orders</a>
+    <button id="printBtn" type="button" class="btn btn-primary btn-sm">Print</button>
+  </div>
+
+  <div id="receiptError" class="receipt-error" role="alert" hidden></div>
+
+  <div id="receiptContent" class="receipt-ticket" hidden>
+    <div class="receipt-head">
+      <h1 id="receiptRestaurant">Mohan Murge Wala</h1>
+      <p class="receipt-section-label">BILL</p>
+    </div>
+    <div class="receipt-meta">
+      <p id="receiptTable">Table: &mdash;</p>
+      <p id="receiptOrderId">Order #</p>
+      <p id="receiptTime">&mdash;</p>
+    </div>
+    <div id="receiptItems" class="receipt-items"></div>
+    <div id="receiptTotalRow" class="receipt-total-row">
+      <span>Total</span>
+      <span id="receiptTotal">&#8377;0</span>
+    </div>
+    <p class="receipt-footer">Payment: Cash / Card / UPI &middot; Thank you, visit again!</p>
+  </div>
+
+  <script src="./main.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.MohanPOS && typeof MohanPOS.initReceipt === "function") {
+        MohanPOS.initReceipt("bill");
+      } else {
+        document.getElementById("receiptError").hidden = false;
+        document.getElementById("receiptError").textContent = "The application failed to load. Please refresh the page.";
+      }
+    });
+  </script>
+</body>
+</html>
