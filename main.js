@@ -15,55 +15,131 @@
   // ---------------------------------------------------------------------
 
   var MENU = Object.freeze([
-    // ---- Main Course (receiptType: main-kitchen) ----
-    { id: "mc-dal-makhani", name: "Dal Makhani", category: "main-course", type: "single", portion: "Regular", price: 220, receiptType: "main-kitchen" },
-    { id: "mc-dal-fry", name: "Dal Fry", category: "main-course", type: "single", portion: "Regular", price: 170, receiptType: "main-kitchen" },
-    { id: "mc-paneer-butter-h", name: "Paneer Butter Masala", category: "main-course", type: "half-full", portion: "Half", price: 190, receiptType: "main-kitchen" },
-    { id: "mc-paneer-butter-f", name: "Paneer Butter Masala", category: "main-course", type: "half-full", portion: "Full", price: 340, receiptType: "main-kitchen" },
-    { id: "mc-kadai-chicken-h", name: "Kadai Chicken", category: "main-course", type: "half-full", portion: "Half", price: 210, receiptType: "main-kitchen" },
-    { id: "mc-kadai-chicken-f", name: "Kadai Chicken", category: "main-course", type: "half-full", portion: "Full", price: 380, receiptType: "main-kitchen" },
-    { id: "mc-butter-chicken-h", name: "Butter Chicken", category: "main-course", type: "half-full", portion: "Half", price: 230, receiptType: "main-kitchen" },
-    { id: "mc-butter-chicken-f", name: "Butter Chicken", category: "main-course", type: "half-full", portion: "Full", price: 410, receiptType: "main-kitchen" },
-    { id: "mc-murg-handi-h", name: "Murg Handi", category: "main-course", type: "half-full", portion: "Half", price: 220, receiptType: "main-kitchen" },
-    { id: "mc-murg-handi-f", name: "Murg Handi", category: "main-course", type: "half-full", portion: "Full", price: 400, receiptType: "main-kitchen" },
-    { id: "mc-jeera-rice", name: "Jeera Rice", category: "main-course", type: "single", portion: "Regular", price: 150, receiptType: "main-kitchen" },
-    { id: "mc-veg-biryani", name: "Veg Biryani", category: "main-course", type: "single", portion: "Regular", price: 210, receiptType: "main-kitchen" },
-    { id: "mc-chicken-biryani", name: "Chicken Biryani", category: "main-course", type: "single", portion: "Regular", price: 260, receiptType: "main-kitchen" },
-    { id: "mc-tawa-roti", name: "Tawa Roti", category: "main-course", type: "single", portion: "Regular", price: 20, receiptType: "main-kitchen" },
-    { id: "mc-lachha-paratha", name: "Lachha Paratha", category: "main-course", type: "single", portion: "Regular", price: 45, receiptType: "main-kitchen" },
+    // ---- Veg Starters (receiptType: main-kitchen) ----
+    { id: "vs-cheese-chilli", name: "Cheese Chilli", category: "veg-starters", type: "single", portion: "Regular", price: 260, receiptType: "main-kitchen" },
+    { id: "vs-shahi-paneer", name: "Shahi Paneer", category: "veg-starters", type: "single", portion: "Regular", price: 300, receiptType: "main-kitchen" },
+    { id: "vs-kadai-paneer", name: "Kadai Paneer", category: "veg-starters", type: "single", portion: "Regular", price: 300, receiptType: "main-kitchen" },
+    { id: "vs-paneer-butter-masala", name: "Paneer Butter Masala", category: "veg-starters", type: "single", portion: "Regular", price: 300, receiptType: "main-kitchen" },
+    { id: "vs-dal-makhani", name: "Dal Makhani", category: "veg-starters", type: "single", portion: "Regular", price: 200, receiptType: "main-kitchen" },
+    { id: "vs-raita", name: "Raita", category: "veg-starters", type: "single", portion: "Regular", price: 100, receiptType: "main-kitchen" },
+    { id: "vs-mix-raita", name: "Mix Raita", category: "veg-starters", type: "single", portion: "Regular", price: 120, receiptType: "main-kitchen" },
+    { id: "vs-mushroom-malai-tikka", name: "Mushroom Malai Tikka", category: "veg-starters", type: "single", portion: "Regular", price: 250, receiptType: "main-kitchen" },
+    { id: "vs-mushroom-tikka", name: "Mushroom Tikka", category: "veg-starters", type: "single", portion: "Regular", price: 220, receiptType: "main-kitchen" },
+    { id: "vs-mushroom-chilli", name: "Mushroom Chilli", category: "veg-starters", type: "single", portion: "Regular", price: 250, receiptType: "main-kitchen" },
 
-    // ---- Tandoor (receiptType: tandoor) ----
-    { id: "td-murg-tikka-h", name: "Murg Tikka", category: "tandoor", type: "half-full", portion: "Half", price: 210, receiptType: "tandoor" },
-    { id: "td-murg-tikka-f", name: "Murg Tikka", category: "tandoor", type: "half-full", portion: "Full", price: 390, receiptType: "tandoor" },
-    { id: "td-seekh-kabab-h", name: "Mutton Seekh Kabab", category: "tandoor", type: "half-full", portion: "Half", price: 240, receiptType: "tandoor" },
-    { id: "td-seekh-kabab-f", name: "Mutton Seekh Kabab", category: "tandoor", type: "half-full", portion: "Full", price: 440, receiptType: "tandoor" },
-    { id: "td-tandoori-murgi-h", name: "Tandoori Murgi", category: "tandoor", type: "half-full", portion: "Half", price: 220, receiptType: "tandoor" },
-    { id: "td-tandoori-murgi-f", name: "Tandoori Murgi", category: "tandoor", type: "half-full", portion: "Full", price: 400, receiptType: "tandoor" },
-    { id: "td-paneer-tikka-h", name: "Paneer Tikka", category: "tandoor", type: "half-full", portion: "Half", price: 180, receiptType: "tandoor" },
-    { id: "td-paneer-tikka-f", name: "Paneer Tikka", category: "tandoor", type: "half-full", portion: "Full", price: 320, receiptType: "tandoor" },
-    { id: "td-tandoori-roti", name: "Tandoori Roti", category: "tandoor", type: "single", portion: "Regular", price: 25, receiptType: "tandoor" },
-    { id: "td-butter-naan", name: "Butter Naan", category: "tandoor", type: "single", portion: "Regular", price: 50, receiptType: "tandoor" },
+    // ---- Breads (receiptType: tandoor) ----
+    { id: "br-tandoori-roti", name: "Tandoori Roti", category: "breads", type: "single", portion: "Regular", price: 20, receiptType: "tandoor" },
+    { id: "br-tandoori-butter-roti", name: "Tandoori Butter Roti", category: "breads", type: "single", portion: "Regular", price: 30, receiptType: "tandoor" },
+    { id: "br-naan", name: "Naan", category: "breads", type: "single", portion: "Regular", price: 30, receiptType: "tandoor" },
+    { id: "br-butter-naan", name: "Butter Naan", category: "breads", type: "single", portion: "Regular", price: 40, receiptType: "tandoor" },
+    { id: "br-masala-roti", name: "Masala Roti", category: "breads", type: "single", portion: "Regular", price: 30, receiptType: "tandoor" },
+    { id: "br-parantha", name: "Parantha", category: "breads", type: "single", portion: "Regular", price: 40, receiptType: "tandoor" },
+    { id: "br-garlic-parantha", name: "Garlic Parantha", category: "breads", type: "single", portion: "Regular", price: 50, receiptType: "tandoor" },
+    { id: "br-garlic-naan", name: "Garlic Naan", category: "breads", type: "single", portion: "Regular", price: 50, receiptType: "tandoor" },
+    { id: "br-pyaaz-parantha", name: "Pyaaz Parantha", category: "breads", type: "single", portion: "Regular", price: 50, receiptType: "tandoor" },
+
+    // ---- Snacks ----
+    { id: "sn-paneer-tikka", name: "Paneer Tikka", category: "snacks", type: "single", portion: "Regular", price: 250, receiptType: "tandoor" },
+    { id: "sn-peanut-masala", name: "Peanut Masala", category: "snacks", type: "single", portion: "Regular", price: 120, receiptType: "bill-only" },
+    { id: "sn-chana-masala", name: "Chana Masala", category: "snacks", type: "single", portion: "Regular", price: 120, receiptType: "bill-only" },
+    { id: "sn-plain-peanut", name: "Plain Peanut", category: "snacks", type: "single", portion: "Regular", price: 50, receiptType: "bill-only" },
+
+    // ---- Papad & Salad (receiptType: bill-only) ----
+    { id: "ex-plain-papad", name: "Plain Papad", category: "extras", type: "single", portion: "Per Pc", price: 20, receiptType: "bill-only" },
+    { id: "ex-masala-papad", name: "Masala Papad", category: "extras", type: "single", portion: "Per Pc", price: 60, receiptType: "bill-only" },
+    { id: "ex-green-salad", name: "Green Salad", category: "extras", type: "single", portion: "Regular", price: 80, receiptType: "bill-only" },
+
+    // ---- Starters — Non-Veg ----
+    { id: "st-tandoori-chicken-h", name: "Tandoori Chicken", category: "starters", type: "half-full", portion: "Half", price: 280, receiptType: "tandoor" },
+    { id: "st-tandoori-chicken-f", name: "Tandoori Chicken", category: "starters", type: "half-full", portion: "Full", price: 450, receiptType: "tandoor" },
+    { id: "st-afgani-chicken-h", name: "Afgani Chicken", category: "starters", type: "half-full", portion: "Half", price: 300, receiptType: "tandoor" },
+    { id: "st-afgani-chicken-f", name: "Afgani Chicken", category: "starters", type: "half-full", portion: "Full", price: 520, receiptType: "tandoor" },
+    { id: "st-tangri-kabab-h", name: "Tangri Kabab", category: "starters", type: "half-full", portion: "Half", price: 180, receiptType: "tandoor" },
+    { id: "st-tangri-kabab-f", name: "Tangri Kabab", category: "starters", type: "half-full", portion: "Full", price: 320, receiptType: "tandoor" },
+    { id: "st-kalmi-kabab-h", name: "Kalmi Kabab", category: "starters", type: "half-full", portion: "Half", price: 180, receiptType: "tandoor" },
+    { id: "st-kalmi-kabab-f", name: "Kalmi Kabab", category: "starters", type: "half-full", portion: "Full", price: 320, receiptType: "tandoor" },
+    { id: "st-seekh-kabab", name: "Seekh Kabab", category: "starters", type: "single", portion: "Regular", price: 300, receiptType: "tandoor" },
+    { id: "st-plain-tangri-h", name: "Plain Tangri", category: "starters", type: "half-full", portion: "Half", price: 150, receiptType: "tandoor" },
+    { id: "st-plain-tangri-f", name: "Plain Tangri", category: "starters", type: "half-full", portion: "Full", price: 300, receiptType: "tandoor" },
+    { id: "st-malai-tikka", name: "Malai Tikka", category: "starters", type: "single", portion: "8 Pc", price: 320, receiptType: "tandoor" },
+    { id: "st-chicken-tikka", name: "Chicken Tikka", category: "starters", type: "single", portion: "8 Pc", price: 320, receiptType: "tandoor" },
+    { id: "st-wings", name: "Wings", category: "starters", type: "single", portion: "8 Pc", price: 320, receiptType: "tandoor" },
+    { id: "st-fish-tikka", name: "Fish Tikka", category: "starters", type: "single", portion: "6 Pc", price: 380, receiptType: "tandoor" },
+    { id: "st-fish-pakora", name: "Fish Pakora", category: "starters", type: "single", portion: "250 gm", price: 300, receiptType: "main-kitchen" },
+    { id: "st-chicken-pakora-h", name: "Chicken Pakora", category: "starters", type: "half-full", portion: "Half", price: 250, receiptType: "main-kitchen" },
+    { id: "st-chicken-pakora-f", name: "Chicken Pakora", category: "starters", type: "half-full", portion: "Full", price: 480, receiptType: "main-kitchen" },
+    { id: "st-steam-chicken", name: "Steam Chicken", category: "starters", type: "single", portion: "Per Pc", price: 150, receiptType: "main-kitchen" },
+    { id: "st-steam-fish", name: "Steam Fish", category: "starters", type: "single", portion: "250 gm", price: 300, receiptType: "main-kitchen" },
+    { id: "st-chilli-chicken-h", name: "Chilli Chicken", category: "starters", type: "half-full", portion: "Half", price: 380, receiptType: "main-kitchen" },
+    { id: "st-chilli-chicken-f", name: "Chilli Chicken", category: "starters", type: "half-full", portion: "Full", price: 630, receiptType: "main-kitchen" },
+    { id: "st-kfc-chicken-h", name: "KFC Chicken", category: "starters", type: "half-full", portion: "Half", price: 280, receiptType: "main-kitchen" },
+    { id: "st-kfc-chicken-f", name: "KFC Chicken", category: "starters", type: "half-full", portion: "Full", price: 500, receiptType: "main-kitchen" },
+    { id: "st-egg-bhurji", name: "Egg Bhurji", category: "starters", type: "single", portion: "4 Eggs", price: 120, receiptType: "main-kitchen" },
+
+    // ---- Main Course (receiptType: main-kitchen) ----
+    { id: "mc-butter-chicken-q", name: "Butter Chicken", category: "main-course", type: "qtr-half-full", portion: "Quarter", price: 180, receiptType: "main-kitchen" },
+    { id: "mc-butter-chicken-h", name: "Butter Chicken", category: "main-course", type: "qtr-half-full", portion: "Half", price: 350, receiptType: "main-kitchen" },
+    { id: "mc-butter-chicken-f", name: "Butter Chicken", category: "main-course", type: "qtr-half-full", portion: "Full", price: 630, receiptType: "main-kitchen" },
+    { id: "mc-kadai-chicken-q", name: "Kadai Chicken", category: "main-course", type: "qtr-half-full", portion: "Quarter", price: 180, receiptType: "main-kitchen" },
+    { id: "mc-kadai-chicken-h", name: "Kadai Chicken", category: "main-course", type: "qtr-half-full", portion: "Half", price: 350, receiptType: "main-kitchen" },
+    { id: "mc-kadai-chicken-f", name: "Kadai Chicken", category: "main-course", type: "qtr-half-full", portion: "Full", price: 630, receiptType: "main-kitchen" },
+    { id: "mc-chicken-kari-q", name: "Chicken Kari", category: "main-course", type: "qtr-half-full", portion: "Quarter", price: 180, receiptType: "main-kitchen" },
+    { id: "mc-chicken-kari-h", name: "Chicken Kari", category: "main-course", type: "qtr-half-full", portion: "Half", price: 350, receiptType: "main-kitchen" },
+    { id: "mc-chicken-kari-f", name: "Chicken Kari", category: "main-course", type: "qtr-half-full", portion: "Full", price: 630, receiptType: "main-kitchen" },
+    { id: "mc-lemon-chicken-h", name: "Lemon Chicken", category: "main-course", type: "half-full", portion: "Half", price: 380, receiptType: "main-kitchen" },
+    { id: "mc-lemon-chicken-f", name: "Lemon Chicken", category: "main-course", type: "half-full", portion: "Full", price: 630, receiptType: "main-kitchen" },
+    { id: "mc-kali-mirch-chicken-h", name: "Kali Mirch Chicken", category: "main-course", type: "half-full", portion: "Half", price: 380, receiptType: "main-kitchen" },
+    { id: "mc-kali-mirch-chicken-f", name: "Kali Mirch Chicken", category: "main-course", type: "half-full", portion: "Full", price: 630, receiptType: "main-kitchen" },
+    { id: "mc-lemon-chicken-dry-h", name: "Lemon Chicken Dry", category: "main-course", type: "half-full", portion: "Half", price: 380, receiptType: "main-kitchen" },
+    { id: "mc-lemon-chicken-dry-f", name: "Lemon Chicken Dry", category: "main-course", type: "half-full", portion: "Full", price: 630, receiptType: "main-kitchen" },
+    { id: "mc-rada-chicken-h", name: "Rada Chicken", category: "main-course", type: "half-full", portion: "Half", price: 380, receiptType: "main-kitchen" },
+    { id: "mc-rada-chicken-f", name: "Rada Chicken", category: "main-course", type: "half-full", portion: "Full", price: 630, receiptType: "main-kitchen" },
+    { id: "mc-masala-chicken-h", name: "Masala Chicken", category: "main-course", type: "half-full", portion: "Half", price: 380, receiptType: "main-kitchen" },
+    { id: "mc-masala-chicken-f", name: "Masala Chicken", category: "main-course", type: "half-full", portion: "Full", price: 630, receiptType: "main-kitchen" },
+    { id: "mc-home-made-chicken-h", name: "Home Made Chicken", category: "main-course", type: "half-full", portion: "Half", price: 380, receiptType: "main-kitchen" },
+    { id: "mc-home-made-chicken-f", name: "Home Made Chicken", category: "main-course", type: "half-full", portion: "Full", price: 630, receiptType: "main-kitchen" },
+    { id: "mc-tawa-chicken-h", name: "Tawa Chicken", category: "main-course", type: "half-full", portion: "Half", price: 380, receiptType: "main-kitchen" },
+    { id: "mc-tawa-chicken-f", name: "Tawa Chicken", category: "main-course", type: "half-full", portion: "Full", price: 630, receiptType: "main-kitchen" },
+    { id: "mc-fish-curry-h", name: "Fish Curry", category: "main-course", type: "half-full", portion: "Half", price: 280, receiptType: "main-kitchen" },
+    { id: "mc-fish-curry-f", name: "Fish Curry", category: "main-course", type: "half-full", portion: "Full", price: 550, receiptType: "main-kitchen" },
+
+    // ---- Combo (12:00 PM – 4:00 PM) ----
+    { id: "cb-chicken-curry-plate", name: "Chicken Curry Plate (2 pc + 4 Roti)", category: "combo", type: "single", portion: "Combo", price: 200, receiptType: "main-kitchen" },
+    { id: "cb-mutton-curry-plate", name: "Mutton Curry Plate (2 pc + 4 Roti)", category: "combo", type: "single", portion: "Combo", price: 280, receiptType: "main-kitchen" },
+
+    // ---- Boneless (receiptType: main-kitchen) ----
+    { id: "bn-chilli-chicken-h", name: "Chilli Chicken (Boneless)", category: "boneless", type: "half-full", portion: "Half", price: 380, receiptType: "main-kitchen" },
+    { id: "bn-chilli-chicken-f", name: "Chilli Chicken (Boneless)", category: "boneless", type: "half-full", portion: "Full", price: 650, receiptType: "main-kitchen" },
+    { id: "bn-butter-chicken-h", name: "Butter Chicken (Boneless)", category: "boneless", type: "half-full", portion: "Half", price: 380, receiptType: "main-kitchen" },
+    { id: "bn-butter-chicken-f", name: "Butter Chicken (Boneless)", category: "boneless", type: "half-full", portion: "Full", price: 650, receiptType: "main-kitchen" },
+    { id: "bn-kali-mirch-chicken-h", name: "Kali Mirch Chicken (Boneless)", category: "boneless", type: "half-full", portion: "Half", price: 400, receiptType: "main-kitchen" },
+    { id: "bn-kali-mirch-chicken-f", name: "Kali Mirch Chicken (Boneless)", category: "boneless", type: "half-full", portion: "Full", price: 650, receiptType: "main-kitchen" },
+    { id: "bn-lemon-chicken-dry-h", name: "Lemon Chicken Dry (Boneless)", category: "boneless", type: "half-full", portion: "Half", price: 400, receiptType: "main-kitchen" },
+    { id: "bn-lemon-chicken-dry-f", name: "Lemon Chicken Dry (Boneless)", category: "boneless", type: "half-full", portion: "Full", price: 650, receiptType: "main-kitchen" },
+
+    // ---- Mutton (receiptType: main-kitchen) ----
+    { id: "mt-mutton-curry", name: "Mutton Curry", category: "mutton", type: "single", portion: "3 Pc", price: 450, receiptType: "main-kitchen" },
+    { id: "mt-mutton-rada", name: "Mutton Rada", category: "mutton", type: "single", portion: "3 Pc", price: 520, receiptType: "main-kitchen" },
+    { id: "mt-mutton-rogan-josh", name: "Mutton Rogan Josh", category: "mutton", type: "single", portion: "3 Pc", price: 550, receiptType: "main-kitchen" },
 
     // ---- Beverages (receiptType: bill-only) ----
-    { id: "bv-masala-chaas", name: "Masala Chaas", category: "beverages", type: "single", portion: "Regular", price: 60, receiptType: "bill-only" },
-    { id: "bv-sweet-lassi", name: "Sweet Lassi", category: "beverages", type: "single", portion: "Regular", price: 80, receiptType: "bill-only" },
-    { id: "bv-soft-drink", name: "Soft Drink (300ml)", category: "beverages", type: "single", portion: "Regular", price: 50, receiptType: "bill-only" },
-    { id: "bv-packaged-water", name: "Packaged Water", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" },
-    { id: "bv-masala-chai", name: "Masala Chai", category: "beverages", type: "single", portion: "Regular", price: 30, receiptType: "bill-only" },
-
-    // ---- Extras (receiptType: bill-only) ----
-    { id: "ex-green-salad", name: "Green Salad", category: "extras", type: "single", portion: "Regular", price: 60, receiptType: "bill-only" },
-    { id: "ex-papad", name: "Roasted Papad", category: "extras", type: "single", portion: "Regular", price: 25, receiptType: "bill-only" },
-    { id: "ex-raita", name: "Boondi Raita", category: "extras", type: "single", portion: "Regular", price: 70, receiptType: "bill-only" },
-    { id: "ex-gulab-jamun", name: "Gulab Jamun (2 pc)", category: "extras", type: "single", portion: "Regular", price: 70, receiptType: "bill-only" },
-    { id: "ex-service-charge-note", name: "Packing Charge", category: "extras", type: "single", portion: "Regular", price: 15, receiptType: "bill-only" }
+    { id: "bv-mineral-water", name: "Mineral Water (MRP)", category: "beverages", type: "single", portion: "Regular", price: 0, receiptType: "bill-only" },
+    { id: "bv-soda", name: "Soda (MRP)", category: "beverages", type: "single", portion: "Regular", price: 0, receiptType: "bill-only" },
+    { id: "bv-cold-drinks", name: "Cold Drinks (MRP)", category: "beverages", type: "single", portion: "Regular", price: 0, receiptType: "bill-only" },
+    { id: "bv-ice-cubes", name: "Ice Cubes", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" }
   ]);
 
   var CATEGORY_LABELS = {
+    "veg-starters": "Veg Starters",
+    "breads": "Breads",
+    "snacks": "Snacks",
+    "extras": "Papad & Salad",
+    "starters": "Starters (Non-Veg)",
     "main-course": "Main Course",
-    "tandoor": "Tandoor",
-    "beverages": "Beverages",
-    "extras": "Extras"
+    "combo": "Combo",
+    "boneless": "Boneless",
+    "mutton": "Mutton",
+    "beverages": "Beverages"
   };
 
   var RECEIPT_LABELS = {
@@ -389,6 +465,7 @@
       if (!item || typeof item.name !== "string") return false;
       if (search && item.name.toLowerCase().indexOf(search) === -1) return false;
       if (category !== "all" && item.category !== category) return false;
+      if (portion === "quarter" && item.portion !== "Quarter") return false;
       if (portion === "half" && item.portion !== "Half") return false;
       if (portion === "full" && item.portion !== "Full") return false;
       return true;
@@ -604,7 +681,7 @@
     var wrap = document.getElementById("categoryChips");
     if (!wrap) return;
     clearNode(wrap);
-    var cats = ["all", "main-course", "tandoor", "beverages", "extras"];
+    var cats = ["all", "veg-starters", "breads", "snacks", "extras", "starters", "main-course", "combo", "boneless", "mutton", "beverages"];
     cats.forEach(function (cat) {
       var label = cat === "all" ? "All" : (CATEGORY_LABELS[cat] || cat);
       var btn = el("button", {
@@ -627,6 +704,7 @@
     clearNode(wrap);
     var options = [
       { key: "all", label: "All Portions" },
+      { key: "quarter", label: "Quarter" },
       { key: "half", label: "Half" },
       { key: "full", label: "Full" }
     ];
