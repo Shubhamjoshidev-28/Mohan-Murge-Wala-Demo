@@ -130,7 +130,8 @@
     { id: "bv-cold-drinks", name: "Cold Drinks (BOTTLE)", category: "beverages", type: "single", portion: "Regular", price: 40, receiptType: "bill-only" },
     { id: "bv-cold-drinks-can", name: "Cold Drinks (CAN)", category: "beverages", type: "single", portion: "Regular", price: 30, receiptType: "bill-only" },
     { id: "bv-cold-drinks-can", name: "Cold Drinks (CAN)", category: "beverages", type: "single", portion: "Regular", price: 70, receiptType: "bill-only" },
-    { id: "bv-ice-cubes", name: "Ice Cubes", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" }
+    { id: "bv-ice-cubes", name: "Ice Cubes", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" },
+    { id: "bv-glass", name: "Glass", category: "beverages", type: "single", portion: "Regular", price: 5, receiptType: "bill-only" }
   ]);
 
   var CATEGORY_LABELS = {
