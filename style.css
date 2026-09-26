@@ -474,50 +474,6 @@ main { padding: 20px; max-width: 1280px; margin: 0 auto; }
   justify-content: space-between;
   margin-bottom: 12px;
 }
-.receipt-ticket {
-  background: #fff;
-  width: 100%;
-  max-width: 340px;
-  padding: 20px 18px 28px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.15);
-  color: var(--color-ink);
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-}
-.receipt-head { text-align: center; margin-bottom: 10px; }
-.receipt-head h1 {
-  font-family: var(--font-mono);
-  font-size: 1.1rem;
-  letter-spacing: 0.04em;
-  margin-bottom: 2px;
-}
-.receipt-section-label {
-  text-align: center;
-  font-weight: 700;
-  margin: 6px 0 10px;
-  letter-spacing: 0.08em;
-}
-.receipt-meta { border-top: 1px dashed #999; border-bottom: 1px dashed #999; padding: 8px 0; margin-bottom: 10px; }
-.receipt-meta p { margin: 0 0 2px; }
-.receipt-items { margin-bottom: 10px; min-height: 20px; }
-.receipt-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto auto;
-  gap: 6px;
-  padding: 3px 0;
-}
-.receipt-row-name { grid-column: 1 / -1; }
-.receipt-row-qty, .receipt-row-price, .receipt-row-subtotal { text-align: right; }
-.receipt-empty { text-align: center; color: var(--color-ink-soft); padding: 10px 0; }
-.receipt-total-row {
-  display: flex;
-  justify-content: space-between;
-  border-top: 1px dashed #999;
-  padding-top: 8px;
-  font-weight: 700;
-  font-size: 1rem;
-}
-.receipt-footer { text-align: center; margin-top: 16px; color: var(--color-ink-soft); font-size: 0.78rem; }
 .receipt-error-title { font-weight: 700; margin-bottom: 6px; }
 .receipt-error {
   background: #fff;
@@ -527,12 +483,7 @@ main { padding: 20px; max-width: 1280px; margin: 0 auto; }
   text-align: center;
 }
 
-@media print {
-  body { background: #fff !important; }
-  .receipt-page-body { background: #fff; padding: 0; }
-  .receipt-toolbar, .no-print { display: none !important; }
-  .receipt-ticket { box-shadow: none; max-width: 100%; padding: 0; }
-}
+
 
 /* -------------------------------------------------- Responsive ------ */
 
@@ -550,10 +501,111 @@ main { padding: 20px; max-width: 1280px; margin: 0 auto; }
 }
 
 
-/* THERMAL RECEIPT PRINT FIX — 58mm printer */
+/* KOT ONLY — Main Kitchen / Tandoor */
+.kot-receipt {
+  width: 58mm;
+  max-width: 58mm;
+  background: #fff;
+  color: #000;
+  padding: 3mm;
+  margin: 0 auto;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 700;
+}
+
+.kot-title {
+  text-align: center;
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 700;
+  margin: 0 0 5mm;
+}
+
+.kot-table-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 24px;
+  line-height: 1.15;
+  font-weight: 700;
+  margin-bottom: 4mm;
+}
+
+.kot-table-number {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.kot-divider {
+  border-top: 1px dashed #000;
+  margin: 3mm 0;
+}
+
+.kot-items-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4mm;
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 700;
+  margin-bottom: 2mm;
+}
+
+.kot-items-head span:last-child {
+  text-align: right;
+}
+
+.kot-items {
+  width: 100%;
+}
+
+.kot-items .receipt-row {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  gap: 4mm !important;
+  width: 100%;
+  padding: 2mm 0 !important;
+  font-size: 22px !important;
+  line-height: 1.2 !important;
+  font-weight: 700 !important;
+  border: 0 !important;
+}
+
+.kot-items .receipt-row-name {
+  grid-column: 1 !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.kot-items .receipt-row-qty {
+  grid-column: 2 !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.kot-items .receipt-row-price,
+.kot-items .receipt-row-subtotal {
+  display: none !important;
+}
+
 @media print {
-  @page { size: 58mm auto; margin: 0; }
-  html, body {
+  @page {
+    size: 58mm auto;
+    margin: 0;
+  }
+
+  .receipt-toolbar,
+  .no-print,
+  .receipt-error {
+    display: none !important;
+  }
+
+  html,
+  body {
     width: 58mm !important;
     min-width: 58mm !important;
     margin: 0 !important;
@@ -561,6 +613,7 @@ main { padding: 20px; max-width: 1280px; margin: 0 auto; }
     background: #fff !important;
     color: #000 !important;
   }
+
   .receipt-page-body {
     display: block !important;
     width: 58mm !important;
@@ -568,46 +621,52 @@ main { padding: 20px; max-width: 1280px; margin: 0 auto; }
     padding: 0 !important;
     margin: 0 !important;
     background: #fff !important;
-    font-family: "Courier New", monospace !important;
   }
-  .receipt-toolbar, .no-print, .receipt-error { display: none !important; }
-  .receipt-ticket {
-    display: block !important;
+
+  .kot-receipt {
     width: 58mm !important;
-    max-width: none !important;
+    max-width: 58mm !important;
     min-width: 58mm !important;
+    padding: 3mm !important;
     margin: 0 !important;
-    padding: 3mm 3mm 4mm !important;
-    box-shadow: none !important;
     background: #fff !important;
     color: #000 !important;
-    font-family: "Courier New", monospace !important;
-    font-size: 10pt !important;
-    line-height: 1.25 !important;
-    overflow: visible !important;
+    font-family: "Courier New", Courier, monospace !important;
   }
-  .receipt-head { margin-bottom: 3mm !important; }
-  .receipt-head h1 {
-    font-family: "Courier New", monospace !important;
-    font-size: 12pt !important;
+
+  .kot-title {
+    font-size: 24px !important;
     font-weight: 700 !important;
-    letter-spacing: 0 !important;
-    white-space: normal !important;
-    overflow-wrap: anywhere !important;
   }
-  .receipt-section-label { font-size: 10pt !important; margin: 2mm 0 3mm !important; letter-spacing: 0 !important; }
-  .receipt-meta { padding: 2mm 0 !important; margin-bottom: 3mm !important; border-color: #777 !important; }
-  .receipt-meta p { margin: 0 0 1mm !important; overflow-wrap: anywhere !important; }
-  .receipt-items { margin-bottom: 3mm !important; min-height: 0 !important; }
-  .receipt-row {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto !important;
-    gap: 1mm 2mm !important;
-    padding: 1mm 0 !important;
-    break-inside: avoid !important;
+
+  .kot-table-row {
+    font-size: 24px !important;
+    font-weight: 700 !important;
   }
-  .receipt-row-name { grid-column: 1 / -1 !important; overflow-wrap: anywhere !important; }
-  .receipt-row-qty, .receipt-row-price, .receipt-row-subtotal { text-align: right !important; }
-  .receipt-total-row { padding-top: 2mm !important; font-size: 10pt !important; }
-  .receipt-footer { margin-top: 4mm !important; font-size: 8pt !important; overflow-wrap: anywhere !important; }
+
+  .kot-table-number {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+  }
+
+  .kot-items-head {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+  }
+
+  .kot-items .receipt-row {
+    font-size: 22px !important;
+    line-height: 1.2 !important;
+    font-weight: 700 !important;
+  }
+
+  .kot-items .receipt-row-name {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+  }
+
+  .kot-items .receipt-row-qty {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+  }
 }

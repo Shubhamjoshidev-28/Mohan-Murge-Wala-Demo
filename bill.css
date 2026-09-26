@@ -1,0 +1,429 @@
+/* =========================================================
+   MOHAN MURGE WALA — BILL RECEIPT ONLY
+   This file owns all BILL receipt styling.
+   Kitchen/Tandoor styling remains in style.css.
+   ========================================================= */
+
+/* =========================================================
+   ★ BILL FONT CONTROL — edit sizes/weight ONLY here ★
+   Everything below reads from these variables, so changing
+   a value here updates it everywhere it's used (screen + print).
+   ========================================================= */
+:root {
+
+  --aone-fw: 800;              /* bold weight for ALL bill text */
+
+  /* --- Screen (on-page) sizes --- */
+  --aone-fs-base: 16px;        /* fallback size for the ticket */
+  --aone-fs-name: 18px;        /* restaurant name */
+  --aone-fs-info: 14px;        /* address / phone under the name */
+  --aone-fs-meta: 13px;        /* invoice / date / time / table rows */
+  --aone-fs-items: 15px;       /* item list header + rows */
+  --aone-fs-total: 18px;       /* TOTAL row */
+  --aone-fs-payment: 13px;     /* payment / status row */
+  --aone-fs-qr-title: 13px;    /* "Scan & Pay" label */
+  --aone-fs-qr-id: 10px;       /* UPI ID line */
+  --aone-fs-footer: 12px;      /* "Thank you..." footer */
+
+  /* --- Print (thermal 58mm paper) sizes --- */
+  --aone-fs-base-print: 13.5px;
+  --aone-fs-name-print: 18px;
+  --aone-fs-info-print: 12px;
+  --aone-fs-meta-print: 13px;
+  --aone-fs-items-print: 15px;
+  --aone-fs-total-print: 18px;
+  --aone-fs-payment-print: 13px;
+  --aone-fs-qr-title-print: 13px;
+  --aone-fs-qr-id-print: 10px;
+  --aone-fs-footer-print: 12px;
+}
+
+.receipt-page-body {
+  background: #E9E2D3;
+  min-height: 100vh;
+  padding: 24px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-mono, "Courier New", monospace);
+}
+
+.receipt-toolbar {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.receipt-ticket {
+  background: #fff;
+  width: 100%;
+  max-width: 340px;
+  padding: 20px 18px 28px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+  color: #000;
+  font-family: "Courier New", Courier, monospace;
+  font-size: var(--aone-fs-meta);
+  font-weight: var(--aone-fw);
+}
+
+.receipt-error-title {
+  font-weight: var(--aone-fw);
+  margin-bottom: 6px;
+}
+
+.receipt-error {
+  background: #fff;
+  max-width: 340px;
+  padding: 20px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+/* Bill-only receipt elements */
+.aone-bill,
+.aone-bill * {
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-bill {
+  width: 58mm !important;
+  max-width: 58mm !important;
+  min-width: 58mm !important;
+  margin: 0 auto !important;
+  padding: 3mm 2.5mm 4mm !important;
+  box-sizing: border-box;
+  background: #fff !important;
+  color: #000 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-family: "Courier New", Courier, monospace !important;
+  font-size: var(--aone-fs-base) !important;
+  line-height: 1.25 !important;
+}
+
+.aone-center {
+  width: 100%;
+  text-align: center;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-restaurant-name {
+  font-size: var(--aone-fs-name) !important;
+  line-height: 1.15;
+  font-weight: var(--aone-fw) !important;
+  margin: 0 0 1px;
+}
+
+.aone-restaurant-info {
+  font-size: var(--aone-fs-info) !important;
+  line-height: 1.25;
+  font-weight: var(--aone-fw) !important;
+  margin: 0;
+}
+
+.aone-divider {
+  width: 100%;
+  height: 0;
+  border-top: 1px dashed #000;
+  margin: 2.5mm 0;
+}
+
+.aone-info-table {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 3mm;
+  row-gap: 1.2mm;
+  font-size: var(--aone-fs-meta) !important;
+  line-height: 1.25;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-label,
+.aone-value {
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-label {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.aone-value {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.aone-items {
+  width: 100%;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-items-head {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 29px 57px;
+  column-gap: 2mm;
+  font-size: var(--aone-fs-items) !important;
+  line-height: 1.25;
+  font-weight: var(--aone-fw) !important;
+  margin-bottom: 1.5mm;
+}
+
+.aone-items-head span {
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-items-head span:nth-child(2),
+.aone-items-head span:nth-child(3) {
+  text-align: right;
+}
+
+.aone-bill .receipt-items {
+  width: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-bill .receipt-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 29px 57px !important;
+  column-gap: 2mm !important;
+  width: 100% !important;
+  padding: 1.4mm 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  align-items: start;
+  break-inside: avoid;
+  font-size: var(--aone-fs-items) !important;
+  line-height: 1.25 !important;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-bill .receipt-row-name {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-bill .receipt-row-qty {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  text-align: right !important;
+  white-space: nowrap;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-bill .receipt-row-price {
+  display: none !important;
+}
+
+.aone-bill .receipt-row-subtotal {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  text-align: right !important;
+  white-space: nowrap;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-bill .receipt-empty {
+  width: 100%;
+  text-align: center;
+  padding: 3mm 0 !important;
+  font-size: var(--aone-fs-items) !important;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-total-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: var(--aone-fs-total) !important;
+  line-height: 1.25;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-total-row span {
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-total-row span:last-child {
+  text-align: right;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-payment-row {
+  font-size: var(--aone-fs-payment) !important;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-payment-row span {
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-qr-title {
+  width: 100%;
+  text-align: center;
+  font-size: var(--aone-fs-qr-title) !important;
+  line-height: 1.25;
+  font-weight: var(--aone-fw) !important;
+  margin-bottom: 2mm;
+}
+
+.aone-qr-box {
+  width: 30mm;
+  height: 30mm;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.aone-qr-image {
+  width: 30mm;
+  height: 30mm;
+  display: block;
+  object-fit: contain;
+}
+
+.aone-qr-id {
+  width: 100%;
+  text-align: center;
+  font-size: var(--aone-fs-qr-id) !important;
+  line-height: 1.25;
+  margin-top: 1mm;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-weight: var(--aone-fw) !important;
+}
+
+.aone-footer {
+  width: 100%;
+  text-align: center;
+  font-size: var(--aone-fs-footer) !important;
+  line-height: 1.3;
+  font-weight: var(--aone-fw) !important;
+  margin-top: 3mm;
+}
+
+@media print {
+  @page {
+    size: 58mm auto;
+    margin: 0;
+  }
+
+  html,
+  body {
+    width: 58mm !important;
+    min-width: 58mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .receipt-page-body {
+    display: block !important;
+    width: 58mm !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #fff !important;
+    font-family: "Courier New", monospace !important;
+  }
+
+  .receipt-toolbar,
+  .no-print,
+  .receipt-error {
+    display: none !important;
+  }
+
+  .receipt-ticket {
+    display: block !important;
+    width: 58mm !important;
+    max-width: none !important;
+    min-width: 58mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .aone-bill {
+    display: block !important;
+    width: 58mm !important;
+    max-width: 58mm !important;
+    min-width: 58mm !important;
+    margin: 0 !important;
+    padding: 3mm 2.5mm 4mm !important;
+    background: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    font-family: "Courier New", Courier, monospace !important;
+    font-size: var(--aone-fs-base-print) !important;
+    line-height: 1.25 !important;
+    font-weight: var(--aone-fw) !important;
+    overflow: visible !important;
+  }
+
+  .aone-bill .aone-restaurant-name {
+    font-size: var(--aone-fs-name-print) !important;
+    font-weight: var(--aone-fw) !important;
+  }
+
+  .aone-bill .aone-restaurant-info {
+    font-size: var(--aone-fs-info-print) !important;
+    font-weight: var(--aone-fw) !important;
+  }
+
+  .aone-bill .aone-info-table {
+    font-size: var(--aone-fs-meta-print) !important;
+    font-weight: var(--aone-fw) !important;
+  }
+
+  .aone-bill .aone-items-head {
+    font-size: var(--aone-fs-items-print) !important;
+    font-weight: var(--aone-fw) !important;
+  }
+
+  .aone-bill .receipt-row {
+    font-size: var(--aone-fs-items-print) !important;
+    font-weight: var(--aone-fw) !important;
+  }
+
+  .aone-bill .aone-total-row {
+    font-size: var(--aone-fs-total-print) !important;
+    font-weight: var(--aone-fw) !important;
+  }
+
+  .aone-bill .aone-payment-row {
+    font-size: var(--aone-fs-payment-print) !important;
+    font-weight: var(--aone-fw) !important;
+  }
+
+  .aone-bill .aone-qr-title {
+    font-size: var(--aone-fs-qr-title-print) !important;
+    font-weight: var(--aone-fw) !important;
+  }
+
+  .aone-bill .aone-qr-id {
+    font-size: var(--aone-fs-qr-id-print) !important;
+    font-weight: var(--aone-fw) !important;
+  }
+
+  .aone-bill .aone-footer {
+    font-size: var(--aone-fs-footer-print) !important;
+    font-weight: var(--aone-fw) !important;
+  }
+}

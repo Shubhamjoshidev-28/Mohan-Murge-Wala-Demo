@@ -1043,85 +1043,326 @@
   }
 
   function initReceipt(receiptType) {
-    var orderId = getQueryParam("order");
-    if (!orderId) {
-      receiptSetError("No order was specified. Open a receipt from the Saved Orders list.");
-      return;
-    }
+  var orderId = getQueryParam("order");
 
-    var order;
-    try {
-      order = getOrderById(orderId);
-    } catch (err) {
-      console.error("MohanPOS: error loading order for receipt.", err);
-      receiptSetError("Something went wrong while loading this order.");
-      return;
-    }
+  if (!orderId) {
+    receiptSetError(
+      "No order was specified. Open a receipt from the Saved Orders list."
+    );
+    return;
+  }
 
-    if (storageUnavailable) {
-      receiptSetError("Local storage is unavailable in this browser, so saved orders cannot be read.");
-      return;
-    }
+  var order;
 
-    if (!order) {
-      receiptSetError("The order may have been deleted or is unavailable.");
-      return;
-    }
+  try {
+    order = getOrderById(orderId);
+  } catch (err) {
+    console.error("MohanPOS: error loading order for receipt.", err);
+    receiptSetError("Something went wrong while loading this order.");
+    return;
+  }
 
-    var items = renderReceiptItems(order, receiptType === "bill" ? "all" : receiptType);
+  if (storageUnavailable) {
+    receiptSetError(
+      "Local storage is unavailable in this browser, so saved orders cannot be read."
+    );
+    return;
+  }
 
-    document.getElementById("receiptError").hidden = true;
-    var content = document.getElementById("receiptContent");
+  if (!order) {
+    receiptSetError(
+      "The order may have been deleted or is unavailable."
+    );
+    return;
+  }
+
+  var items = renderReceiptItems(
+    order,
+    receiptType === "bill" ? "all" : receiptType
+  );
+
+  document.getElementById("receiptError").hidden = true;
+
+  var content = document.getElementById("receiptContent");
+
+  if (content) {
     content.hidden = false;
+  }
 
-    document.getElementById("receiptRestaurant").textContent = RESTAURANT_NAME;
-    document.getElementById("receiptTable").textContent = "Table: " + order.tableNumber;
-    document.getElementById("receiptOrderId").textContent = "Order #" + order.id.slice(-6).toUpperCase();
-    document.getElementById("receiptTime").textContent = formatDateTime(order.updatedAt);
+  /* =========================================================
+     KOT RECEIPT
+     Main Kitchen + Tandoor
+     Only:
+       KOT
+       Table number
+       Item name
+       Quantity
+     ========================================================= */
+
+  if (receiptType !== "bill") {
+
+    var tableEl = document.getElementById("receiptTable");
+
+    if (tableEl) {
+      tableEl.textContent = order.tableNumber
+        ? String(order.tableNumber)
+        : "—";
+    }
 
     var body = document.getElementById("receiptItems");
+
+    if (!body) {
+      return;
+    }
+
     clearNode(body);
 
     if (!items.length) {
-      var emptyRow = el("p", { class: "receipt-empty" },
-        receiptType === "bill"
-          ? "This order has no billable items."
-          : "No items for this section of the kitchen.");
-      body.appendChild(emptyRow);
+
+      body.appendChild(
+        el(
+          "p",
+          { class: "receipt-empty" },
+          "No items for this section of the kitchen."
+        )
+      );
+
     } else {
+
       items.forEach(function (it) {
-        var row = el("div", { class: "receipt-row" });
-        var nameCol = el("span", { class: "receipt-row-name" },
-          it.name + (it.portion !== "Regular" ? " (" + it.portion + ")" : ""));
-        var qtyCol = el("span", { class: "receipt-row-qty" }, "x" + safeQuantity(it.quantity));
+
+        var row = el("div", {
+          class: "receipt-row"
+        });
+
+        /* ITEM NAME */
+        var nameCol = el(
+          "span",
+          {
+            class: "receipt-row-name"
+          },
+          it.name +
+            (it.portion !== "Regular"
+              ? " (" + it.portion + ")"
+              : "")
+        );
+
+        /* QUANTITY */
+        var qtyCol = el(
+          "span",
+          {
+            class: "receipt-row-qty"
+          },
+          "x" + safeQuantity(it.quantity)
+        );
+
         row.appendChild(nameCol);
         row.appendChild(qtyCol);
 
-        if (receiptType === "bill") {
-          row.appendChild(el("span", { class: "receipt-row-price" }, formatCurrency(it.price)));
-          row.appendChild(el("span", { class: "receipt-row-subtotal" }, formatCurrency(it.price * it.quantity)));
-        }
         body.appendChild(row);
       });
     }
 
+    /*
+     * Do NOT calculate total for KOT.
+     * Do NOT add price.
+     * Do NOT add invoice.
+     * Do NOT add date/time.
+     * Do NOT add payment.
+     * Do NOT add restaurant information.
+     */
+
     var totalRow = document.getElementById("receiptTotalRow");
-    if (receiptType === "bill") {
-      var total = computeOrderTotal(order.items);
-      document.getElementById("receiptTotal").textContent = formatCurrency(total);
-      totalRow.hidden = false;
-    } else if (totalRow) {
+
+    if (totalRow) {
       totalRow.hidden = true;
     }
 
     var printBtn = document.getElementById("printBtn");
+
     if (printBtn) {
-      printBtn.addEventListener("click", function () {
+
+      printBtn.onclick = function () {
         window.print();
-      });
+      };
+
     }
+
+    /*
+     * VERY IMPORTANT:
+     * Stop here so KOT does not execute bill logic.
+     */
+
+    return;
   }
 
+
+  /* =========================================================
+     BILL RECEIPT
+     Existing bill functionality
+     ========================================================= */
+
+  var restaurantEl =
+    document.getElementById("receiptRestaurant");
+
+  if (restaurantEl) {
+    restaurantEl.textContent = RESTAURANT_NAME;
+  }
+
+
+  var tableElBill =
+    document.getElementById("receiptTable");
+
+  if (tableElBill) {
+    tableElBill.textContent =
+      "Table: " + order.tableNumber;
+  }
+
+
+  var orderIdEl =
+    document.getElementById("receiptOrderId");
+
+  if (orderIdEl) {
+    orderIdEl.textContent =
+      "Order #" +
+      order.id.slice(-6).toUpperCase();
+  }
+
+
+  var timeEl =
+    document.getElementById("receiptTime");
+
+  if (timeEl) {
+    timeEl.textContent =
+      formatDateTime(order.updatedAt);
+  }
+
+
+  var bodyBill =
+    document.getElementById("receiptItems");
+
+  if (!bodyBill) {
+    return;
+  }
+
+  clearNode(bodyBill);
+
+
+  if (!items.length) {
+
+    bodyBill.appendChild(
+      el(
+        "p",
+        { class: "receipt-empty" },
+        "This order has no billable items."
+      )
+    );
+
+  } else {
+
+    items.forEach(function (it) {
+
+      var row =
+        el("div", {
+          class: "receipt-row"
+        });
+
+
+      var nameCol =
+        el(
+          "span",
+          {
+            class: "receipt-row-name"
+          },
+          it.name +
+            (it.portion !== "Regular"
+              ? " (" + it.portion + ")"
+              : "")
+        );
+
+
+      var qtyCol =
+        el(
+          "span",
+          {
+            class: "receipt-row-qty"
+          },
+          "x" + safeQuantity(it.quantity)
+        );
+
+
+      row.appendChild(nameCol);
+      row.appendChild(qtyCol);
+
+
+      if (receiptType === "bill") {
+
+        row.appendChild(
+          el(
+            "span",
+            {
+              class: "receipt-row-price"
+            },
+            formatCurrency(it.price)
+          )
+        );
+
+
+        row.appendChild(
+          el(
+            "span",
+            {
+              class: "receipt-row-subtotal"
+            },
+            formatCurrency(
+              it.price * it.quantity
+            )
+          )
+        );
+
+      }
+
+
+      bodyBill.appendChild(row);
+
+    });
+
+  }
+
+
+  var totalRowBill =
+    document.getElementById("receiptTotalRow");
+
+
+  if (totalRowBill) {
+
+    var total =
+      computeOrderTotal(order.items);
+
+    var totalEl =
+      document.getElementById("receiptTotal");
+
+    if (totalEl) {
+      totalEl.textContent =
+        formatCurrency(total);
+    }
+
+    totalRowBill.hidden = false;
+  }
+
+
+  var printBtnBill =
+    document.getElementById("printBtn");
+
+
+  if (printBtnBill) {
+
+    printBtnBill.onclick = function () {
+      window.print();
+    };
+
+  }
+}
   // ---------------------------------------------------------------------
   // 8. SERVICE WORKER REGISTRATION (safe, non-blocking)
   // ---------------------------------------------------------------------

@@ -3,52 +3,420 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bill Receipt &mdash; Mohan Murge Wala</title>
-  <meta name="theme-color" content="#211A15">
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" href="./icons/icon-192.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Libre+Franklin:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <title>Bill Receipt — Mohan Murge Wala</title>
+
+  <meta name="theme-color" content="#ffffff">
+
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./bill.css">
 </head>
+
 <body class="receipt-page-body">
 
+  <!-- Screen only -->
   <div class="receipt-toolbar no-print">
-    <a href="index.html" class="btn btn-ghost btn-sm">&larr; Back to orders</a>
-    <button id="printBtn" type="button" class="btn btn-primary btn-sm">Print</button>
+    <a href="index.html" class="btn btn-ghost btn-sm">
+      ← Back to orders
+    </a>
+
+    <button id="printBtn" type="button" class="btn btn-primary btn-sm">
+      Print
+    </button>
   </div>
 
   <div id="receiptError" class="receipt-error" role="alert" hidden></div>
 
-  <div id="receiptContent" class="receipt-ticket" hidden>
-    <div class="receipt-head">
-      <h1 id="receiptRestaurant">Mohan Murge Wala</h1>
-      <p class="receipt-section-label">BILL</p>
+
+  <!-- =========================
+       A-ONE BILL RECEIPT
+       ========================= -->
+
+  <div id="receiptContent" class="receipt-ticket aone-bill" hidden>
+
+    <!-- Restaurant Header -->
+    <div class="aone-center">
+
+      <div id="receiptRestaurant" class="aone-restaurant-name">
+        Mohan Murge Wala
+      </div>
+
+      <div class="aone-restaurant-info">
+        Rajpura, Punjab
+      </div>
+
+      <div class="aone-restaurant-info">
+        Phone: +91 00000 00000
+      </div>
+
     </div>
-    <div class="receipt-meta">
-      <p id="receiptTable">Table: &mdash;</p>
-      <p id="receiptOrderId">Order #</p>
-      <p id="receiptTime">&mdash;</p>
+
+
+    <div class="aone-divider"></div>
+
+
+    <!-- Invoice Information -->
+    <div class="aone-info-table">
+
+      <span class="aone-label">
+        Invoice
+      </span>
+
+      <span class="aone-value" id="receiptOrderId">
+        INV-00000
+      </span>
+
+
+      <span class="aone-label">
+        Date
+      </span>
+
+      <span class="aone-value" id="receiptDate">
+        —
+      </span>
+
+
+      <span class="aone-label">
+        Time
+      </span>
+
+      <span class="aone-value" id="receiptTime">
+        —
+      </span>
+
+
+      <span class="aone-label">
+        Table
+      </span>
+
+      <span class="aone-value" id="receiptTable">
+        —
+      </span>
+
     </div>
-    <div id="receiptItems" class="receipt-items"></div>
-    <div id="receiptTotalRow" class="receipt-total-row">
-      <span>Total</span>
-      <span id="receiptTotal">&#8377;0</span>
+
+
+    <div class="aone-divider"></div>
+
+
+    <!-- Items -->
+    <div class="aone-items">
+
+      <div class="aone-items-head">
+
+        <span>
+          Item
+        </span>
+
+        <span>
+          Qty
+        </span>
+
+        <span>
+          Amount
+        </span>
+
+      </div>
+
+
+      <div id="receiptItems" class="receipt-items"></div>
+
     </div>
-    <p class="receipt-footer">Payment: Cash / Card / UPI &middot; Thank you, visit again!</p>
+
+
+    <div class="aone-divider"></div>
+
+
+    <!-- Total -->
+    <div id="receiptTotalRow" class="aone-total-row">
+
+      <span>
+        TOTAL
+      </span>
+
+      <span id="receiptTotal">
+        ₹0
+      </span>
+
+    </div>
+
+
+    <div class="aone-divider"></div>
+
+
+    <!-- Payment -->
+    <div class="aone-info-table aone-payment-row">
+
+      <span class="aone-label">
+        Payment
+      </span>
+
+      <span class="aone-value" id="receiptPayment">
+        Offline
+      </span>
+
+
+      <span class="aone-label">
+        Status
+      </span>
+
+      <span class="aone-value" id="receiptStatus">
+        Pending
+      </span>
+
+    </div>
+
+
+    <div class="aone-divider"></div>
+
+
+    <!-- QR -->
+    <div class="aone-qr-title">
+      Scan &amp; Pay
+    </div>
+
+    <div class="aone-qr-box">
+
+      <img
+        src="./bill-upi-qr.png"
+        alt="UPI QR Code"
+        class="aone-qr-image"
+      >
+
+    </div>
+
+
+    <div id="receiptUpiText" class="aone-qr-id">
+      UPI ID: Q4861453268yb1
+    </div>
+
+
+    <!-- Footer -->
+    <div class="aone-footer">
+
+      Thank you for your order!<br>
+
+      Please visit again.<br><br>
+
+      <span id="receiptFooterInvoice">
+        INV-00000
+      </span>
+
+    </div>
+
   </div>
 
+
+  <!-- =========================
+       MAIN POS JAVASCRIPT
+       ========================= -->
+
   <script src="./main.js"></script>
+
+
   <script>
+
     document.addEventListener("DOMContentLoaded", function () {
-      if (window.MohanPOS && typeof MohanPOS.initReceipt === "function") {
+
+      if (
+        window.MohanPOS &&
+        typeof MohanPOS.initReceipt === "function"
+      ) {
+
+        /*
+         * Initialize normal bill receipt.
+         */
         MohanPOS.initReceipt("bill");
-      } else {
-        document.getElementById("receiptError").hidden = false;
-        document.getElementById("receiptError").textContent = "The application failed to load. Please refresh the page.";
+
+
+        /*
+         * BILL ONLY formatting.
+         */
+        try {
+
+          var params =
+            new URLSearchParams(window.location.search);
+
+          var orderId =
+            params.get("order");
+
+          var order =
+            orderId
+              ? MohanPOS.getOrderById(orderId)
+              : null;
+
+
+          if (order) {
+
+            /*
+             * Invoice number
+             */
+            var invoiceNumber =
+              "INV-" +
+              String(order.id)
+                .slice(-5)
+                .toUpperCase();
+
+
+            /*
+             * Date / time
+             */
+            var d =
+              new Date(
+                order.updatedAt ||
+                order.createdAt
+              );
+
+
+            /*
+             * Elements
+             */
+            var invoiceEl =
+              document.getElementById(
+                "receiptOrderId"
+              );
+
+            var footerInvoiceEl =
+              document.getElementById(
+                "receiptFooterInvoice"
+              );
+
+            var dateEl =
+              document.getElementById(
+                "receiptDate"
+              );
+
+            var timeEl =
+              document.getElementById(
+                "receiptTime"
+              );
+
+            var tableEl =
+              document.getElementById(
+                "receiptTable"
+              );
+
+
+            /*
+             * Invoice
+             */
+            if (invoiceEl) {
+              invoiceEl.textContent =
+                invoiceNumber;
+            }
+
+
+            if (footerInvoiceEl) {
+              footerInvoiceEl.textContent =
+                invoiceNumber;
+            }
+
+
+            /*
+             * Table
+             */
+            if (tableEl) {
+
+              tableEl.textContent =
+                String(
+                  order.tableNumber || "—"
+                );
+
+            }
+
+
+            /*
+             * Date / Time
+             */
+            if (!isNaN(d.getTime())) {
+
+              if (dateEl) {
+
+                dateEl.textContent =
+                  d.toLocaleDateString(
+                    "en-IN",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric"
+                    }
+                  );
+
+              }
+
+
+              if (timeEl) {
+
+                timeEl.textContent =
+                  d.toLocaleTimeString(
+                    "en-IN",
+                    {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true
+                    }
+                  );
+
+              }
+
+            }
+
+
+            /*
+             * Payment information
+             */
+            var paymentEl =
+              document.getElementById(
+                "receiptPayment"
+              );
+
+            var statusEl =
+              document.getElementById(
+                "receiptStatus"
+              );
+
+
+            if (paymentEl) {
+              paymentEl.textContent =
+                "Offline";
+            }
+
+
+            if (statusEl) {
+              statusEl.textContent =
+                "Pending";
+            }
+
+          }
+
+        } catch (err) {
+
+          console.warn(
+            "Bill A-One formatting error:",
+            err
+          );
+
+        }
+
       }
+
+      else {
+
+        document.getElementById(
+          "receiptError"
+        ).hidden = false;
+
+
+        document.getElementById(
+          "receiptError"
+        ).textContent =
+          "The application failed to load. Please refresh the page.";
+
+      }
+
     });
+
   </script>
+
 </body>
 </html>
