@@ -123,9 +123,13 @@
     { id: "mt-mutton-rogan-josh", name: "Mutton Rogan Josh", category: "mutton", type: "single", portion: "3 Pc", price: 550, receiptType: "main-kitchen" },
 
     // ---- Beverages (receiptType: bill-only) ----
-    { id: "bv-mineral-water", name: "Mineral Water (MRP)", category: "beverages", type: "single", portion: "Regular", price: 0, receiptType: "bill-only" },
-    { id: "bv-soda", name: "Soda (MRP)", category: "beverages", type: "single", portion: "Regular", price: 0, receiptType: "bill-only" },
-    { id: "bv-cold-drinks", name: "Cold Drinks (MRP)", category: "beverages", type: "single", portion: "Regular", price: 0, receiptType: "bill-only" },
+    { id: "bv-mineral-water", name: "Mineral Water (MRP)", category: "beverages", type: "single", portion: "Regular", price: 25, receiptType: "bill-only" },
+    { id: "bv-mineral-water", name: "Mineral Water (MRP)", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" },
+    { id: "bv-soda", name: "Soda (MRP)", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" },
+    { id: "bv-cold-drinks", name: "Cold Drinks (BOTTLE)", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" },
+    { id: "bv-cold-drinks", name: "Cold Drinks (BOTTLE)", category: "beverages", type: "single", portion: "Regular", price: 40, receiptType: "bill-only" },
+    { id: "bv-cold-drinks-can", name: "Cold Drinks (CAN)", category: "beverages", type: "single", portion: "Regular", price: 30, receiptType: "bill-only" },
+    { id: "bv-cold-drinks-can", name: "Cold Drinks (CAN)", category: "beverages", type: "single", portion: "Regular", price: 70, receiptType: "bill-only" },
     { id: "bv-ice-cubes", name: "Ice Cubes", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" }
   ]);
 
