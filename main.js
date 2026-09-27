@@ -23,8 +23,8 @@
     { id: "vs-dal-makhani", name: "Dal Makhani", category: "veg-starters", type: "single", portion: "Regular", price: 200, receiptType: "main-kitchen" },
     { id: "vs-raita", name: "Raita", category: "veg-starters", type: "single", portion: "Regular", price: 100, receiptType: "main-kitchen" },
     { id: "vs-mix-raita", name: "Mix Raita", category: "veg-starters", type: "single", portion: "Regular", price: 120, receiptType: "main-kitchen" },
-    { id: "vs-mushroom-malai-tikka", name: "Mushroom Malai Tikka", category: "veg-starters", type: "single", portion: "Regular", price: 250, receiptType: "main-kitchen" },
-    { id: "vs-mushroom-tikka", name: "Mushroom Tikka", category: "veg-starters", type: "single", portion: "Regular", price: 220, receiptType: "main-kitchen" },
+    { id: "vs-mushroom-malai-tikka", name: "Mushroom Malai Tikka", category: "veg-starters", type: "single", portion: "Regular", price: 250, receiptType: "tandoor" },
+    { id: "vs-mushroom-tikka", name: "Mushroom Tikka", category: "veg-starters", type: "single", portion: "Regular", price: 220, receiptType: "tandoor" },
     { id: "vs-mushroom-chilli", name: "Mushroom Chilli", category: "veg-starters", type: "single", portion: "Regular", price: 250, receiptType: "main-kitchen" },
 
     // ---- Breads (receiptType: tandoor) ----
@@ -64,7 +64,7 @@
     { id: "st-malai-tikka", name: "Malai Tikka", category: "starters", type: "single", portion: "8 Pc", price: 320, receiptType: "tandoor" },
     { id: "st-chicken-tikka", name: "Chicken Tikka", category: "starters", type: "single", portion: "8 Pc", price: 320, receiptType: "tandoor" },
     { id: "st-wings", name: "Wings", category: "starters", type: "single", portion: "8 Pc", price: 320, receiptType: "tandoor" },
-    { id: "st-fish-tikka", name: "Fish Tikka", category: "starters", type: "single", portion: "6 Pc", price: 380, receiptType: "main-kitchen" },
+    { id: "st-fish-tikka", name: "Fish Tikka", category: "starters", type: "single", portion: "6 Pc", price: 380, receiptType: "tandoor" },
     { id: "st-fish-pakora", name: "Fish Pakora", category: "starters", type: "single", portion: "250 gm", price: 300, receiptType: "main-kitchen" },
     { id: "st-chicken-pakora-h", name: "Chicken Pakora", category: "starters", type: "half-full", portion: "Half", price: 250, receiptType: "main-kitchen" },
     { id: "st-chicken-pakora-f", name: "Chicken Pakora", category: "starters", type: "half-full", portion: "Full", price: 480, receiptType: "main-kitchen" },
@@ -130,6 +130,7 @@
     { id: "bv-cold-drinks", name: "Cold Drinks (BOTTLE)", category: "beverages", type: "single", portion: "Regular", price: 40, receiptType: "bill-only" },
     { id: "bv-cold-drinks-can", name: "Cold Drinks (CAN)", category: "beverages", type: "single", portion: "Regular", price: 30, receiptType: "bill-only" },
     { id: "bv-cold-drinks-can", name: "Cold Drinks (CAN)", category: "beverages", type: "single", portion: "Regular", price: 70, receiptType: "bill-only" },
+    { id: "bv-red-bull-can", name: "Red Bull", category: "beverages", type: "single", portion: "Regular", price: 125, receiptType: "bill-only" },
     { id: "bv-ice-cubes", name: "Ice Cubes", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" },
     { id: "bv-glass", name: "Glass", category: "beverages", type: "single", portion: "Regular", price: 5, receiptType: "bill-only" }
   ]);
