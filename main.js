@@ -40,14 +40,14 @@
 
     // ---- Snacks ----
     { id: "sn-paneer-tikka", name: "Paneer Tikka", category: "snacks", type: "single", portion: "Regular", price: 250, receiptType: "tandoor" },
-    { id: "sn-peanut-masala", name: "Peanut Masala", category: "snacks", type: "single", portion: "Regular", price: 120, receiptType: "bill-only" },
-    { id: "sn-chana-masala", name: "Chana Masala", category: "snacks", type: "single", portion: "Regular", price: 120, receiptType: "bill-only" },
-    { id: "sn-plain-peanut", name: "Plain Peanut", category: "snacks", type: "single", portion: "Regular", price: 50, receiptType: "bill-only" },
+    { id: "sn-peanut-masala", name: "Peanut Masala", category: "snacks", type: "single", portion: "Regular", price: 120, receiptType: "main-kitchen" },
+    { id: "sn-chana-masala", name: "Chana Masala", category: "snacks", type: "single", portion: "Regular", price: 120, receiptType: "main-kitchen" },
+    { id: "sn-plain-peanut", name: "Plain Peanut", category: "snacks", type: "single", portion: "Regular", price: 50, receiptType: "main-kitchen" },
 
-    // ---- Papad & Salad (receiptType: bill-only) ----
-    { id: "ex-plain-papad", name: "Plain Papad", category: "extras", type: "single", portion: "Per Pc", price: 20, receiptType: "bill-only" },
-    { id: "ex-masala-papad", name: "Masala Papad", category: "extras", type: "single", portion: "Per Pc", price: 60, receiptType: "bill-only" },
-    { id: "ex-green-salad", name: "Green Salad", category: "extras", type: "single", portion: "Regular", price: 80, receiptType: "bill-only" },
+    // ---- Papad & Salad () ----
+    { id: "ex-plain-papad", name: "Plain Papad", category: "extras", type: "single", portion: "Per Pc", price: 20, receiptType: "main-kitchen" },
+    { id: "ex-masala-papad", name: "Masala Papad", category: "extras", type: "single", portion: "Per Pc", price: 60, receiptType: "main-kitchen" },
+    { id: "ex-green-salad", name: "Green Salad", category: "extras", type: "single", portion: "Regular", price: 80, receiptType: "main-kitchen" },
 
     // ---- Starters — Non-Veg ----
     { id: "st-tandoori-chicken-h", name: "Tandoori Chicken", category: "starters", type: "half-full", portion: "Half", price: 280, receiptType: "tandoor" },
@@ -64,7 +64,7 @@
     { id: "st-malai-tikka", name: "Malai Tikka", category: "starters", type: "single", portion: "8 Pc", price: 320, receiptType: "tandoor" },
     { id: "st-chicken-tikka", name: "Chicken Tikka", category: "starters", type: "single", portion: "8 Pc", price: 320, receiptType: "tandoor" },
     { id: "st-wings", name: "Wings", category: "starters", type: "single", portion: "8 Pc", price: 320, receiptType: "tandoor" },
-    { id: "st-fish-tikka", name: "Fish Tikka", category: "starters", type: "single", portion: "6 Pc", price: 380, receiptType: "tandoor" },
+    { id: "st-fish-tikka", name: "Fish Tikka", category: "starters", type: "single", portion: "6 Pc", price: 380, receiptType: "main-kitchen" },
     { id: "st-fish-pakora", name: "Fish Pakora", category: "starters", type: "single", portion: "250 gm", price: 300, receiptType: "main-kitchen" },
     { id: "st-chicken-pakora-h", name: "Chicken Pakora", category: "starters", type: "half-full", portion: "Half", price: 250, receiptType: "main-kitchen" },
     { id: "st-chicken-pakora-f", name: "Chicken Pakora", category: "starters", type: "half-full", portion: "Full", price: 480, receiptType: "main-kitchen" },
