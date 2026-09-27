@@ -10,7 +10,11 @@
 
   <div class="receipt-toolbar no-print">
     <a href="index.html" class="btn btn-ghost btn-sm">&larr; Back</a>
-    <button id="printBtn" type="button" class="btn btn-primary btn-sm">Print</button>
+    <div class="kot-toolbar-actions no-print">
+      <button id="selectAllBtn" type="button" class="btn btn-ghost btn-sm">Select All</button>
+      <button id="clearAllBtn" type="button" class="btn btn-ghost btn-sm">Clear</button>
+      <button id="printBtn" type="button" class="btn btn-primary btn-sm">Print Selected</button>
+    </div>
   </div>
 
   <div id="receiptError" class="receipt-error" role="alert" hidden></div>

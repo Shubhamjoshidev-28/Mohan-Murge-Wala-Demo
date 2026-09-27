@@ -295,13 +295,53 @@
       })
       .filter(function (it) { return it.quantity > 0; });
 
+    var savedKotState = order.kotState || {};
+    var savedMainKitchen = savedKotState["main-kitchen"] || {};
+    var savedTandoor = savedKotState["tandoor"] || {};
+
+    function sanitizeKotSection(section) {
+      var printedItems = Array.isArray(section.printedItems) ? section.printedItems : [];
+      var history = Array.isArray(section.history) ? section.history : [];
+
+      return {
+        printedItems: printedItems
+          .filter(function (it) { return it && typeof it === "object" && it.itemId; })
+          .map(function (it) {
+            return {
+              itemId: String(it.itemId),
+              name: typeof it.name === "string" ? it.name : "Unnamed item",
+              portion: typeof it.portion === "string" ? it.portion : "Regular",
+              quantity: safeQuantity(it.quantity)
+            };
+          })
+          .filter(function (it) { return it.quantity > 0; }),
+        history: history
+          .filter(function (entry) { return entry && typeof entry === "object"; })
+          .map(function (entry) {
+            return {
+              printedAt: typeof entry.printedAt === "string" ? entry.printedAt : nowIso(),
+              action: entry.action === "removed" ? "removed" : "added",
+              itemId: String(entry.itemId || ""),
+              name: typeof entry.name === "string" ? entry.name : "Unnamed item",
+              portion: typeof entry.portion === "string" ? entry.portion : "Regular",
+              quantity: safeQuantity(entry.quantity)
+            };
+          })
+          .filter(function (entry) { return entry.itemId && entry.quantity > 0; })
+      };
+    }
+
     return {
       id: String(order.id),
       tableNumber: String(order.tableNumber || "").trim(),
       items: cleanItems,
       total: computeOrderTotal(cleanItems),
       createdAt: typeof order.createdAt === "string" ? order.createdAt : nowIso(),
-      updatedAt: typeof order.updatedAt === "string" ? order.updatedAt : nowIso()
+      updatedAt: typeof order.updatedAt === "string" ? order.updatedAt : nowIso(),
+      kotState: {
+        "main-kitchen": sanitizeKotSection(savedMainKitchen),
+        "tandoor": sanitizeKotSection(savedTandoor)
+      }
     };
   }
 
@@ -866,6 +906,135 @@
     renderCart();
   }
 
+  function createEmptyKotState() {
+    return {
+      "main-kitchen": { printedItems: [], history: [] },
+      "tandoor": { printedItems: [], history: [] }
+    };
+  }
+
+  function ensureKotState(order) {
+    if (!order.kotState) order.kotState = createEmptyKotState();
+    if (!order.kotState["main-kitchen"]) {
+      order.kotState["main-kitchen"] = { printedItems: [], history: [] };
+    }
+    if (!order.kotState["tandoor"]) {
+      order.kotState["tandoor"] = { printedItems: [], history: [] };
+    }
+    if (!Array.isArray(order.kotState["main-kitchen"].printedItems)) order.kotState["main-kitchen"].printedItems = [];
+    if (!Array.isArray(order.kotState["main-kitchen"].history)) order.kotState["main-kitchen"].history = [];
+    if (!Array.isArray(order.kotState["tandoor"].printedItems)) order.kotState["tandoor"].printedItems = [];
+    if (!Array.isArray(order.kotState["tandoor"].history)) order.kotState["tandoor"].history = [];
+    return order.kotState;
+  }
+
+  function getKotPrintedQuantity(printedItems, itemId) {
+    var found = (Array.isArray(printedItems) ? printedItems : []).filter(function (it) {
+      return String(it.itemId) === String(itemId);
+    });
+    return found.length ? safeQuantity(found[0].quantity) : 0;
+  }
+
+  function setKotPrintedQuantity(printedItems, item, quantity) {
+    quantity = Math.max(0, safeQuantity(quantity));
+    for (var i = 0; i < printedItems.length; i++) {
+      if (String(printedItems[i].itemId) === String(item.itemId)) {
+        if (quantity <= 0) {
+          printedItems.splice(i, 1);
+        } else {
+          printedItems[i].name = item.name;
+          printedItems[i].portion = item.portion;
+          printedItems[i].quantity = quantity;
+        }
+        return;
+      }
+    }
+    if (quantity > 0) {
+      printedItems.push({
+        itemId: String(item.itemId),
+        name: String(item.name || ""),
+        portion: String(item.portion || "Regular"),
+        quantity: quantity
+      });
+    }
+  }
+
+  function getKotChanges(order, receiptType) {
+    ensureKotState(order);
+
+    var section = order.kotState[receiptType];
+    var current = Array.isArray(order.items) ? order.items : [];
+    var previous = Array.isArray(section.printedItems) ? section.printedItems : [];
+    var changes = [];
+    var seen = {};
+
+    current.filter(function (item) { return item.receiptType === receiptType; }).forEach(function (item) {
+      var currentQty = safeQuantity(item.quantity);
+      var printedQty = getKotPrintedQuantity(previous, item.itemId);
+      var difference = currentQty - printedQty;
+      seen[String(item.itemId)] = true;
+
+      if (difference > 0) {
+        changes.push({
+          itemId: String(item.itemId),
+          name: String(item.name || ""),
+          portion: String(item.portion || "Regular"),
+          quantity: difference,
+          change: "added"
+        });
+      } else if (difference < 0) {
+        changes.push({
+          itemId: String(item.itemId),
+          name: String(item.name || ""),
+          portion: String(item.portion || "Regular"),
+          quantity: Math.abs(difference),
+          change: "removed"
+        });
+      }
+    });
+
+    previous.forEach(function (item) {
+      if (!seen[String(item.itemId)] && safeQuantity(item.quantity) > 0) {
+        changes.push({
+          itemId: String(item.itemId),
+          name: String(item.name || ""),
+          portion: String(item.portion || "Regular"),
+          quantity: safeQuantity(item.quantity),
+          change: "removed"
+        });
+      }
+    });
+
+    return changes;
+  }
+
+  function applySelectedKotChanges(order, receiptType, changes, selectedIds) {
+    ensureKotState(order);
+    var section = order.kotState[receiptType];
+    var printedItems = section.printedItems;
+    var now = nowIso();
+
+    changes.forEach(function (change) {
+      if (!selectedIds[String(change.itemId)]) return;
+
+      var oldPrinted = getKotPrintedQuantity(printedItems, change.itemId);
+      var newPrinted = change.change === "added"
+        ? oldPrinted + safeQuantity(change.quantity)
+        : oldPrinted - safeQuantity(change.quantity);
+
+      setKotPrintedQuantity(printedItems, change, newPrinted);
+
+      section.history.push({
+        printedAt: now,
+        action: change.change,
+        itemId: String(change.itemId),
+        name: String(change.name || ""),
+        portion: String(change.portion || "Regular"),
+        quantity: safeQuantity(change.quantity)
+      });
+    });
+  }
+
   function saveCurrentOrder() {
     hideFieldError("tableNumberError");
     hideFieldError("orderError");
@@ -915,7 +1084,8 @@
         items: cleanItems,
         total: computeOrderTotal(cleanItems),
         createdAt: existing.createdAt,
-        updatedAt: nowIso()
+        updatedAt: nowIso(),
+        kotState: existing.kotState || createEmptyKotState()
       };
       result = updateOrder(updated);
     } else {
@@ -925,7 +1095,8 @@
         items: cleanItems,
         total: computeOrderTotal(cleanItems),
         createdAt: nowIso(),
-        updatedAt: nowIso()
+        updatedAt: nowIso(),
+        kotState: createEmptyKotState()
       };
       result = addOrder(newOrder);
     }
@@ -1044,326 +1215,426 @@
   }
 
   function initReceipt(receiptType) {
-  var orderId = getQueryParam("order");
+    var orderId = getQueryParam("order");
 
-  if (!orderId) {
-    receiptSetError(
-      "No order was specified. Open a receipt from the Saved Orders list."
-    );
-    return;
-  }
+    if (!orderId) {
+      receiptSetError(
+        "No order was specified. Open a receipt from the Saved Orders list."
+      );
+      return;
+    }
 
-  var order;
+    var order;
+    try {
+      order = getOrderById(orderId);
+    } catch (err) {
+      console.error("MohanPOS: error loading order for receipt.", err);
+      receiptSetError("Something went wrong while loading this order.");
+      return;
+    }
 
-  try {
-    order = getOrderById(orderId);
-  } catch (err) {
-    console.error("MohanPOS: error loading order for receipt.", err);
-    receiptSetError("Something went wrong while loading this order.");
-    return;
-  }
+    if (storageUnavailable) {
+      receiptSetError(
+        "Local storage is unavailable in this browser, so saved orders cannot be read."
+      );
+      return;
+    }
 
-  if (storageUnavailable) {
-    receiptSetError(
-      "Local storage is unavailable in this browser, so saved orders cannot be read."
-    );
-    return;
-  }
+    if (!order) {
+      receiptSetError("The order may have been deleted or is unavailable.");
+      return;
+    }
 
-  if (!order) {
-    receiptSetError(
-      "The order may have been deleted or is unavailable."
-    );
-    return;
-  }
+    document.getElementById("receiptError").hidden = true;
+    var content = document.getElementById("receiptContent");
+    if (content) content.hidden = false;
 
-  var items = renderReceiptItems(
-    order,
-    receiptType === "bill" ? "all" : receiptType
-  );
+   /* =========================================================
+   KOT RECEIPT
+   - Always show all kitchen items
+   - User selects what to print
+   - No print history
+========================================================= */
 
-  document.getElementById("receiptError").hidden = true;
-
-  var content = document.getElementById("receiptContent");
-
-  if (content) {
-    content.hidden = false;
-  }
-
-  /* =========================================================
-     KOT RECEIPT
-     Main Kitchen + Tandoor
-     Only:
-       KOT
-       Table number
-       Item name
-       Quantity
-     ========================================================= */
-
-  if (receiptType !== "bill") {
+if (receiptType !== "bill") {
 
     var tableEl = document.getElementById("receiptTable");
 
     if (tableEl) {
-      tableEl.textContent = order.tableNumber
-        ? String(order.tableNumber)
-        : "—";
+        tableEl.textContent = order.tableNumber || "—";
     }
+
 
     var body = document.getElementById("receiptItems");
 
-    if (!body) {
-      return;
-    }
+    var printBtn = document.getElementById("printBtn");
+
+    var selectAllBtn = document.getElementById("selectAllBtn");
+
+    var clearAllBtn = document.getElementById("clearAllBtn");
+
+
+    if (!body) return;
+
+
+    /*
+       Get all items for this kitchen
+    */
+    var items = renderReceiptItems(
+        order,
+        receiptType
+    );
+
 
     clearNode(body);
 
+
     if (!items.length) {
 
-      body.appendChild(
-        el(
-          "p",
-          { class: "receipt-empty" },
-          "No items for this section of the kitchen."
-        )
-      );
-
-    } else {
-
-      items.forEach(function (it) {
-
-        var row = el("div", {
-          class: "receipt-row"
-        });
-
-        /* ITEM NAME */
-        var nameCol = el(
-          "span",
-          {
-            class: "receipt-row-name"
-          },
-          it.name +
-            (it.portion !== "Regular"
-              ? " (" + it.portion + ")"
-              : "")
+        body.appendChild(
+            el(
+                "p",
+                {
+                    class:"receipt-empty"
+                },
+                "No items for this kitchen."
+            )
         );
 
-        /* QUANTITY */
-        var qtyCol = el(
-          "span",
-          {
-            class: "receipt-row-qty"
-          },
-          "x" + safeQuantity(it.quantity)
+
+        return;
+    }
+
+
+
+    /*
+       Render every item with checkbox
+    */
+
+    items.forEach(function(it,index){
+
+        var row = el(
+            "div",
+            {
+                class:"receipt-row kot-select-item"
+            }
         );
 
-        row.appendChild(nameCol);
-        row.appendChild(qtyCol);
+
+        var checkboxId =
+            "kot-item-" + index;
+
+
+
+        var label = el(
+            "label",
+            {
+                class:"kot-select-label",
+                "for":checkboxId
+            }
+        );
+
+
+        var checkbox = el(
+            "input",
+            {
+                id:checkboxId,
+                class:"kot-select-checkbox",
+                type:"checkbox",
+                checked:true,
+                "data-index":index
+            }
+        );
+
+
+
+        var name =
+            it.name +
+            (
+                it.portion !== "Regular"
+                ?
+                " (" + it.portion + ")"
+                :
+                ""
+            );
+
+
+        label.appendChild(
+            checkbox
+        );
+
+
+        label.appendChild(
+            el(
+                "span",
+                {
+                    class:"receipt-row-name"
+                },
+                name
+            )
+        );
+
+
+        var qty = el(
+            "span",
+            {
+                class:"receipt-row-qty"
+            },
+            "x" + safeQuantity(it.quantity)
+        );
+
+
+        row.appendChild(label);
+
+        row.appendChild(qty);
+
 
         body.appendChild(row);
-      });
-    }
-
-    /*
-     * Do NOT calculate total for KOT.
-     * Do NOT add price.
-     * Do NOT add invoice.
-     * Do NOT add date/time.
-     * Do NOT add payment.
-     * Do NOT add restaurant information.
-     */
-
-    var totalRow = document.getElementById("receiptTotalRow");
-
-    if (totalRow) {
-      totalRow.hidden = true;
-    }
-
-    var printBtn = document.getElementById("printBtn");
-
-    if (printBtn) {
-
-      printBtn.onclick = function () {
-        window.print();
-      };
-
-    }
-
-    /*
-     * VERY IMPORTANT:
-     * Stop here so KOT does not execute bill logic.
-     */
-
-    return;
-  }
-
-
-  /* =========================================================
-     BILL RECEIPT
-     Existing bill functionality
-     ========================================================= */
-
-  var restaurantEl =
-    document.getElementById("receiptRestaurant");
-
-  if (restaurantEl) {
-    restaurantEl.textContent = RESTAURANT_NAME;
-  }
-
-
-  var tableElBill =
-    document.getElementById("receiptTable");
-
-  if (tableElBill) {
-    tableElBill.textContent =
-      "Table: " + order.tableNumber;
-  }
-
-
-  var orderIdEl =
-    document.getElementById("receiptOrderId");
-
-  if (orderIdEl) {
-    orderIdEl.textContent =
-      "Order #" +
-      order.id.slice(-6).toUpperCase();
-  }
-
-
-  var timeEl =
-    document.getElementById("receiptTime");
-
-  if (timeEl) {
-    timeEl.textContent =
-      formatDateTime(order.updatedAt);
-  }
-
-
-  var bodyBill =
-    document.getElementById("receiptItems");
-
-  if (!bodyBill) {
-    return;
-  }
-
-  clearNode(bodyBill);
-
-
-  if (!items.length) {
-
-    bodyBill.appendChild(
-      el(
-        "p",
-        { class: "receipt-empty" },
-        "This order has no billable items."
-      )
-    );
-
-  } else {
-
-    items.forEach(function (it) {
-
-      var row =
-        el("div", {
-          class: "receipt-row"
-        });
-
-
-      var nameCol =
-        el(
-          "span",
-          {
-            class: "receipt-row-name"
-          },
-          it.name +
-            (it.portion !== "Regular"
-              ? " (" + it.portion + ")"
-              : "")
-        );
-
-
-      var qtyCol =
-        el(
-          "span",
-          {
-            class: "receipt-row-qty"
-          },
-          "x" + safeQuantity(it.quantity)
-        );
-
-
-      row.appendChild(nameCol);
-      row.appendChild(qtyCol);
-
-
-      if (receiptType === "bill") {
-
-        row.appendChild(
-          el(
-            "span",
-            {
-              class: "receipt-row-price"
-            },
-            formatCurrency(it.price)
-          )
-        );
-
-
-        row.appendChild(
-          el(
-            "span",
-            {
-              class: "receipt-row-subtotal"
-            },
-            formatCurrency(
-              it.price * it.quantity
-            )
-          )
-        );
-
-      }
-
-
-      bodyBill.appendChild(row);
 
     });
 
-  }
 
 
-  var totalRowBill =
-    document.getElementById("receiptTotalRow");
+    /*
+       Select All
+    */
 
+    if(selectAllBtn){
 
-  if (totalRowBill) {
+        selectAllBtn.onclick=function(){
 
-    var total =
-      computeOrderTotal(order.items);
+            body
+            .querySelectorAll(".kot-select-checkbox")
+            .forEach(function(cb){
 
-    var totalEl =
-      document.getElementById("receiptTotal");
+                cb.checked=true;
 
-    if (totalEl) {
-      totalEl.textContent =
-        formatCurrency(total);
+            });
+
+        };
+
     }
 
-    totalRowBill.hidden = false;
-  }
 
 
-  var printBtnBill =
-    document.getElementById("printBtn");
+    /*
+       Clear All
+    */
+
+    if(clearAllBtn){
+
+        clearAllBtn.onclick=function(){
+
+            body
+            .querySelectorAll(".kot-select-checkbox")
+            .forEach(function(cb){
+
+                cb.checked=false;
+
+            });
+
+        };
+
+    }
 
 
-  if (printBtnBill) {
 
-    printBtnBill.onclick = function () {
-      window.print();
-    };
+    /*
+       Print Selected
+    */
 
-  }
+    if(printBtn){
+
+        printBtn.onclick=function(){
+
+
+            var selected=[];
+
+
+
+            body
+            .querySelectorAll(
+                ".kot-select-checkbox:checked"
+            )
+            .forEach(function(cb){
+
+
+                var index =
+                    Number(
+                        cb.getAttribute(
+                            "data-index"
+                        )
+                    );
+
+
+                selected.push(
+                    items[index]
+                );
+
+
+            });
+
+
+
+            if(!selected.length){
+
+                alert(
+                    "Please select at least one item."
+                );
+
+                return;
+
+            }
+
+
+
+            /*
+              Temporarily replace receipt items
+              with selected items only
+            */
+
+            clearNode(body);
+
+
+
+            selected.forEach(function(it){
+
+                var row =
+                    el(
+                        "div",
+                        {
+                            class:"receipt-row"
+                        }
+                    );
+
+
+                row.appendChild(
+                    el(
+                        "span",
+                        {
+                            class:"receipt-row-name"
+                        },
+                        it.name +
+                        (
+                            it.portion !== "Regular"
+                            ?
+                            " (" + it.portion + ")"
+                            :
+                            ""
+                        )
+                    )
+                );
+
+
+                row.appendChild(
+                    el(
+                        "span",
+                        {
+                            class:"receipt-row-qty"
+                        },
+                        "x" +
+                        safeQuantity(
+                            it.quantity
+                        )
+                    )
+                );
+
+
+                body.appendChild(row);
+
+            });
+
+
+
+            window.print();
+
+
+            /*
+              Restore complete list after print
+            */
+
+            setTimeout(
+                function(){
+
+                    location.reload();
+
+                },
+                500
+            );
+
+
+        };
+
+    }
+
+
+    return;
+
 }
+
+    /* =========================================================
+       BILL RECEIPT
+       Existing bill functionality remains unchanged.
+       ========================================================= */
+
+    var items = renderReceiptItems(order, "all");
+
+    var restaurantEl = document.getElementById("receiptRestaurant");
+    if (restaurantEl) restaurantEl.textContent = RESTAURANT_NAME;
+
+    var tableElBill = document.getElementById("receiptTable");
+    if (tableElBill) tableElBill.textContent = "Table: " + order.tableNumber;
+
+    var orderIdEl = document.getElementById("receiptOrderId");
+    if (orderIdEl) orderIdEl.textContent = "Order #" + order.id.slice(-6).toUpperCase();
+
+    var timeEl = document.getElementById("receiptTime");
+    if (timeEl) timeEl.textContent = formatDateTime(order.updatedAt);
+
+    var bodyBill = document.getElementById("receiptItems");
+    if (!bodyBill) return;
+
+    clearNode(bodyBill);
+
+    if (!items.length) {
+      bodyBill.appendChild(
+        el("p", { class: "receipt-empty" }, "This order has no billable items.")
+      );
+    } else {
+      items.forEach(function (it) {
+        var row = el("div", { class: "receipt-row" });
+        var nameCol = el(
+          "span",
+          { class: "receipt-row-name" },
+          it.name + (it.portion !== "Regular" ? " (" + it.portion + ")" : "")
+        );
+        var qtyCol = el("span", { class: "receipt-row-qty" }, "x" + safeQuantity(it.quantity));
+        row.appendChild(nameCol);
+        row.appendChild(qtyCol);
+
+        if (receiptType === "bill") {
+          row.appendChild(el("span", { class: "receipt-row-price" }, formatCurrency(it.price)));
+          row.appendChild(el("span", { class: "receipt-row-subtotal" }, formatCurrency(it.price * it.quantity)));
+        }
+        bodyBill.appendChild(row);
+      });
+    }
+
+    var totalRowBill = document.getElementById("receiptTotalRow");
+    if (totalRowBill) {
+      var total = computeOrderTotal(order.items);
+      var totalEl = document.getElementById("receiptTotal");
+      if (totalEl) totalEl.textContent = formatCurrency(total);
+      totalRowBill.hidden = false;
+    }
+
+    var printBtnBill = document.getElementById("printBtn");
+    if (printBtnBill) {
+      printBtnBill.onclick = function () {
+        window.print();
+      };
+    }
+  }
   // ---------------------------------------------------------------------
   // 8. SERVICE WORKER REGISTRATION (safe, non-blocking)
   // ---------------------------------------------------------------------

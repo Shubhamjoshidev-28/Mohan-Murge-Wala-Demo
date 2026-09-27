@@ -670,3 +670,66 @@ main { padding: 20px; max-width: 1280px; margin: 0 auto; }
     font-weight: 700 !important;
   }
 }
+
+/* =========================================================
+   KOT SELECTION UI
+   Screen only. Physical KOT keeps the existing 58mm format.
+   ========================================================= */
+.kot-toolbar-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.kot-select-item {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center;
+}
+
+.kot-select-label {
+  grid-column: 1 !important;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.kot-select-checkbox {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: #211A15;
+}
+
+.kot-select-label .receipt-row-name {
+  grid-column: auto !important;
+}
+
+.kot-select-item .receipt-row-qty {
+  grid-column: 2 !important;
+}
+
+@media print {
+  .kot-toolbar-actions,
+  .kot-select-checkbox {
+    display: none !important;
+  }
+
+  .kot-select-label {
+    display: block !important;
+    grid-column: 1 !important;
+  }
+
+  .kot-select-label .receipt-row-name {
+    display: block !important;
+  }
+}
+
+@media print {
+  .kot-select-item.kot-not-selected {
+    display: none !important;
+  }
+}
