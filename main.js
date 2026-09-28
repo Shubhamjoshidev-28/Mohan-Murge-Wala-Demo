@@ -28,15 +28,15 @@
     { id: "vs-mushroom-chilli", name: "Mushroom Chilli", category: "veg-starters", type: "single", portion: "Regular", price: 250, receiptType: "main-kitchen" },
 
     // ---- Breads (receiptType: tandoor) ----
-    { id: "br-tandoori-roti", name: "Tandoori Roti", category: "breads", type: "single", portion: "Regular", price: 20, receiptType: "tandoor" },
-    { id: "br-tandoori-butter-roti", name: "Tandoori Butter Roti", category: "breads", type: "single", portion: "Regular", price: 30, receiptType: "tandoor" },
-    { id: "br-naan", name: "Naan", category: "breads", type: "single", portion: "Regular", price: 30, receiptType: "tandoor" },
-    { id: "br-butter-naan", name: "Butter Naan", category: "breads", type: "single", portion: "Regular", price: 40, receiptType: "tandoor" },
-    { id: "br-masala-roti", name: "Masala Roti", category: "breads", type: "single", portion: "Regular", price: 30, receiptType: "tandoor" },
-    { id: "br-parantha", name: "Parantha", category: "breads", type: "single", portion: "Regular", price: 40, receiptType: "tandoor" },
-    { id: "br-garlic-parantha", name: "Garlic Parantha", category: "breads", type: "single", portion: "Regular", price: 50, receiptType: "tandoor" },
-    { id: "br-garlic-naan", name: "Garlic Naan", category: "breads", type: "single", portion: "Regular", price: 50, receiptType: "tandoor" },
-    { id: "br-pyaaz-parantha", name: "Pyaaz Parantha", category: "breads", type: "single", portion: "Regular", price: 50, receiptType: "tandoor" },
+    { id: "br-tandoori-roti", name: "Tandoori Roti", category: "breads", type: "single", portion: "Regular", price: 20, receiptType: "main-kitchen" },
+    { id: "br-tandoori-butter-roti", name: "Tandoori Butter Roti", category: "breads", type: "single", portion: "Regular", price: 30, receiptType: "main-kitchen" },
+    { id: "br-naan", name: "Naan", category: "breads", type: "single", portion: "Regular", price: 30, receiptType: "main-kitchen" },
+    { id: "br-butter-naan", name: "Butter Naan", category: "breads", type: "single", portion: "Regular", price: 40, receiptType: "main-kitchen" },
+    { id: "br-masala-roti", name: "Masala Roti", category: "breads", type: "single", portion: "Regular", price: 30, receiptType: "main-kitchen" },
+    { id: "br-parantha", name: "Parantha", category: "breads", type: "single", portion: "Regular", price: 40, receiptType: "main-kitchen" },
+    { id: "br-garlic-parantha", name: "Garlic Parantha", category: "breads", type: "single", portion: "Regular", price: 50, receiptType: "main-kitchen" },
+    { id: "br-garlic-naan", name: "Garlic Naan", category: "breads", type: "single", portion: "Regular", price: 50, receiptType: "main-kitchen" },
+    { id: "br-pyaaz-parantha", name: "Pyaaz Parantha", category: "breads", type: "single", portion: "Regular", price: 50, receiptType: "main-kitchen" },
 
     // ---- Snacks ----
     { id: "sn-paneer-tikka", name: "Paneer Tikka", category: "snacks", type: "single", portion: "Regular", price: 250, receiptType: "tandoor" },
@@ -331,6 +331,21 @@
       };
     }
 
+    var cleanKotState = {
+      "main-kitchen": sanitizeKotSection(savedMainKitchen),
+      "tandoor": sanitizeKotSection(savedTandoor)
+    };
+
+    // Preserve pendingEditedItems (itemId -> true) across save/load/refresh
+    var savedPending = savedKotState.pendingEditedItems;
+    if (savedPending && typeof savedPending === "object" && !Array.isArray(savedPending)) {
+      var cleanPending = {};
+      Object.keys(savedPending).forEach(function (id) {
+        if (savedPending[id]) cleanPending[String(id)] = true;
+      });
+      cleanKotState.pendingEditedItems = cleanPending;
+    }
+
     return {
       id: String(order.id),
       tableNumber: String(order.tableNumber || "").trim(),
@@ -338,10 +353,7 @@
       total: computeOrderTotal(cleanItems),
       createdAt: typeof order.createdAt === "string" ? order.createdAt : nowIso(),
       updatedAt: typeof order.updatedAt === "string" ? order.updatedAt : nowIso(),
-      kotState: {
-        "main-kitchen": sanitizeKotSection(savedMainKitchen),
-        "tandoor": sanitizeKotSection(savedTandoor)
-      }
+      kotState: cleanKotState
     };
   }
 
@@ -529,7 +541,8 @@
     cart: [], // { itemId, name, portion, category, receiptType, price, quantity }
     search: "",
     category: "all",
-    portion: "all"
+    portion: "all",
+    originalItems: []
   };
 
   var toastTimer = null;
@@ -672,6 +685,7 @@
   function resetBuilderState() {
     appState.editingOrderId = null;
     appState.tableNumber = "";
+    appState.originalItems = [];
     appState.cart = [];
     appState.search = "";
     appState.category = "all";
@@ -698,6 +712,13 @@
     resetBuilderState();
     appState.editingOrderId = order.id;
     appState.tableNumber = order.tableNumber;
+    appState.originalItems = order.items.map(function (it) {
+      return {
+        itemId: it.itemId,
+        quantity: safeQuantity(it.quantity)
+      };
+    });
+
     appState.cart = order.items.map(function (it) {
       return {
         itemId: it.itemId, name: it.name, portion: it.portion,
@@ -1035,6 +1056,33 @@
     });
   }
 
+  function getEditedItemIds(originalItems, updatedItems) {
+    var originalMap = {};
+    var editedIds = {};
+  
+    (originalItems || []).forEach(function (item) {
+      originalMap[String(item.itemId)] = safeQuantity(item.quantity);
+    });
+  
+    (updatedItems || []).forEach(function (item) {
+      var id = String(item.itemId);
+      var newQuantity = safeQuantity(item.quantity);
+  
+      // New item
+      if (!Object.prototype.hasOwnProperty.call(originalMap, id)) {
+        editedIds[id] = true;
+        return;
+      }
+  
+      // Existing item whose quantity changed
+      if (originalMap[id] !== newQuantity) {
+        editedIds[id] = true;
+      }
+    });
+  
+    return editedIds;
+  }  
+
   function saveCurrentOrder() {
     hideFieldError("tableNumberError");
     hideFieldError("orderError");
@@ -1078,6 +1126,15 @@
         showFieldError("orderError", "This order could not be found. Please refresh the order list.");
         return;
       }
+
+      var kotState = existing.kotState || createEmptyKotState();
+
+      var editedItemIds = getEditedItemIds(
+        appState.originalItems,
+        cleanItems
+      );
+
+      kotState.pendingEditedItems = editedItemIds;
       var updated = {
         id: existing.id,
         tableNumber: validation.value,
@@ -1085,7 +1142,7 @@
         total: computeOrderTotal(cleanItems),
         createdAt: existing.createdAt,
         updatedAt: nowIso(),
-        kotState: existing.kotState || createEmptyKotState()
+        kotState: kotState
       };
       result = updateOrder(updated);
     } else {
@@ -1109,6 +1166,25 @@
     showToast(appState.editingOrderId ? "Order updated." : "Order saved.");
     resetBuilderState();
     switchView("home");
+  }
+
+  function isEditedKotItem(order, item) {
+    if (!order || !item) return false;
+
+    var pending = order.kotState
+      ? order.kotState.pendingEditedItems
+      : null;
+
+    // New/legacy order: select everything
+    if (pending === null || pending === undefined) {
+      return true;
+    }
+
+    // Edited order: only items recorded as changed (an empty object selects nothing)
+    return Object.prototype.hasOwnProperty.call(
+      pending,
+      String(item.itemId)
+    );
   }
 
   function cancelBuilder() {
@@ -1252,7 +1328,10 @@
    /* =========================================================
    KOT RECEIPT
    - Always show all kitchen items
-   - User selects what to print
+   - New orders: all items selected by default
+   - Edited orders: only newly added / quantity-changed items
+     are selected by default; unchanged items start unchecked
+   - User can adjust the selection before printing
    - No print history
 ========================================================= */
 
@@ -1341,10 +1420,11 @@ if (receiptType !== "bill") {
                 id:checkboxId,
                 class:"kot-select-checkbox",
                 type:"checkbox",
-                checked:true,
                 "data-index":index
             }
         );
+
+        checkbox.checked = isEditedKotItem(order, it);
 
 
 
