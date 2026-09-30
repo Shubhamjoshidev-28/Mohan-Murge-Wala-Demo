@@ -1295,15 +1295,32 @@
   }
 
   /**
-   * Sends a receipt to the Thermal Bridge app via bridge-print.js.
-   * makeText is a function that returns the receipt text.
+   * Prints the real receipt HTML through the Thermal Bridge app.
+   * options: { element, selectedIndexes, fallbackText, button }
    */
-  function sendToPrinter(makeText) {
-    if (!window.BridgePrint) {
+  function sendToPrinter(options) {
+    if (!window.BridgePrint || typeof window.BridgePrint.printReceipt !== "function") {
       alert("bridge-print.js is not loaded. Add it before main.js on this page.");
       return;
     }
-    window.BridgePrint.print(makeText());
+
+    var btn = options.button || null;
+    var oldLabel = btn ? btn.textContent : "";
+    if (btn) {
+      if (btn.disabled) return;
+      btn.disabled = true;
+      btn.textContent = "Printing\u2026";
+    }
+
+    window.BridgePrint.printReceipt(options.element, {
+      selectedIndexes: options.selectedIndexes,
+      fallbackText: options.fallbackText
+    }).then(function () {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = oldLabel;
+      }
+    });
   }
 
   function initReceipt(receiptType) {
@@ -1418,8 +1435,11 @@
       if (printBtn) {
         printBtn.onclick = function () {
           var selected = [];
+          var selectedIndexes = [];
           body.querySelectorAll(".kot-select-checkbox:checked").forEach(function (cb) {
-            selected.push(items[Number(cb.getAttribute("data-index"))]);
+            var idx = Number(cb.getAttribute("data-index"));
+            selectedIndexes.push(idx);
+            selected.push(items[idx]);
           });
 
           if (!selected.length) {
@@ -1427,8 +1447,13 @@
             return;
           }
 
-          sendToPrinter(function () {
-            return window.BridgePrint.buildKot(order, selected);
+          sendToPrinter({
+            element: content,
+            selectedIndexes: selectedIndexes,
+            button: printBtn,
+            fallbackText: function () {
+              return window.BridgePrint.buildKot(order, selected);
+            }
           });
         };
       }
@@ -1493,13 +1518,17 @@
     var printBtnBill = document.getElementById("printBtn");
     if (printBtnBill) {
       printBtnBill.onclick = function () {
-        sendToPrinter(function () {
-          return window.BridgePrint.buildBill(
-            order,
-            billItems,
-            RESTAURANT_NAME,
-            formatDateTime(order.updatedAt)
-          );
+        sendToPrinter({
+          element: content,
+          button: printBtnBill,
+          fallbackText: function () {
+            return window.BridgePrint.buildBill(
+              order,
+              billItems,
+              RESTAURANT_NAME,
+              formatDateTime(order.updatedAt)
+            );
+          }
         });
       };
     }

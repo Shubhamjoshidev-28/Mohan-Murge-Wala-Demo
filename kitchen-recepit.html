@@ -37,8 +37,9 @@
     <div id="receiptItems" class="kot-items"></div>
   </div>
 
+  <script src="./html2canvas.min.js"></script>
+  <script src="./bridge-print.js"></script>
   <script src="./main.js"></script>
-  <script src="bridge-print.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       if (window.MohanPOS && typeof MohanPOS.initReceipt === "function") {

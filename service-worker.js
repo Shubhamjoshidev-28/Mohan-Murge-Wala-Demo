@@ -10,7 +10,7 @@
 
 // Bump this string whenever any cached file changes so old caches are
 // discarded on the next activation.
-var CACHE_VERSION = "mohan-pos-v2";
+var CACHE_VERSION = "mohan-pos-v3";
 
 // Paths are relative to this file's own location (the app root), which
 // keeps things correct on GitHub Pages sub-paths.
@@ -21,7 +21,11 @@ var APP_SHELL = [
   "./kitchen-recepit.html",
   "./tandoor-recepit.html",
   "./style.css",
+  "./bill.css",
   "./main.js",
+  "./bridge-print.js",
+  "./html2canvas.min.js",
+  "./bill-upi-qr.png",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
