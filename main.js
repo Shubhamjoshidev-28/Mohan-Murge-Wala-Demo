@@ -5,6 +5,9 @@
  *
  * This file is intentionally framework-free (vanilla JS) so the whole
  * demo can be hosted as static files on GitHub Pages.
+ *
+ * Printing: receipts are sent to the Thermal Bridge Android app through
+ * bridge-print.js (load it BEFORE this file on every receipt page).
  */
 
 (function () {
@@ -123,13 +126,14 @@
     { id: "mt-mutton-rogan-josh", name: "Mutton Rogan Josh", category: "mutton", type: "single", portion: "3 Pc", price: 550, receiptType: "main-kitchen" },
 
     // ---- Beverages (receiptType: bill-only) ----
+    // NOTE: ids must be unique. The second entry of each duplicated item got a "-2" suffix.
     { id: "bv-mineral-water", name: "Mineral Water (MRP)", category: "beverages", type: "single", portion: "Regular", price: 25, receiptType: "bill-only" },
-    { id: "bv-mineral-water", name: "Mineral Water (MRP)", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" },
+    { id: "bv-mineral-water-2", name: "Mineral Water (MRP)", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" },
     { id: "bv-soda", name: "Soda (MRP)", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" },
     { id: "bv-cold-drinks", name: "Cold Drinks (BOTTLE)", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" },
-    { id: "bv-cold-drinks", name: "Cold Drinks (BOTTLE)", category: "beverages", type: "single", portion: "Regular", price: 40, receiptType: "bill-only" },
+    { id: "bv-cold-drinks-2", name: "Cold Drinks (BOTTLE)", category: "beverages", type: "single", portion: "Regular", price: 40, receiptType: "bill-only" },
     { id: "bv-cold-drinks-can", name: "Cold Drinks (CAN)", category: "beverages", type: "single", portion: "Regular", price: 30, receiptType: "bill-only" },
-    { id: "bv-cold-drinks-can", name: "Cold Drinks (CAN)", category: "beverages", type: "single", portion: "Regular", price: 70, receiptType: "bill-only" },
+    { id: "bv-cold-drinks-can-2", name: "Cold Drinks (CAN)", category: "beverages", type: "single", portion: "Regular", price: 70, receiptType: "bill-only" },
     { id: "bv-red-bull-can", name: "Red Bull", category: "beverages", type: "single", portion: "Regular", price: 125, receiptType: "bill-only" },
     { id: "bv-ice-cubes", name: "Ice Cubes", category: "beverages", type: "single", portion: "Regular", price: 20, receiptType: "bill-only" },
     { id: "bv-glass", name: "Glass", category: "beverages", type: "single", portion: "Regular", price: 5, receiptType: "bill-only" }
@@ -1059,29 +1063,29 @@
   function getEditedItemIds(originalItems, updatedItems) {
     var originalMap = {};
     var editedIds = {};
-  
+
     (originalItems || []).forEach(function (item) {
       originalMap[String(item.itemId)] = safeQuantity(item.quantity);
     });
-  
+
     (updatedItems || []).forEach(function (item) {
       var id = String(item.itemId);
       var newQuantity = safeQuantity(item.quantity);
-  
+
       // New item
       if (!Object.prototype.hasOwnProperty.call(originalMap, id)) {
         editedIds[id] = true;
         return;
       }
-  
+
       // Existing item whose quantity changed
       if (originalMap[id] !== newQuantity) {
         editedIds[id] = true;
       }
     });
-  
+
     return editedIds;
-  }  
+  }
 
   function saveCurrentOrder() {
     hideFieldError("tableNumberError");
@@ -1290,6 +1294,18 @@
     return order.items.filter(function (it) { return it.receiptType === receiptTypeFilter; });
   }
 
+  /**
+   * Sends a receipt to the Thermal Bridge app via bridge-print.js.
+   * makeText is a function that returns the receipt text.
+   */
+  function sendToPrinter(makeText) {
+    if (!window.BridgePrint) {
+      alert("bridge-print.js is not loaded. Add it before main.js on this page.");
+      return;
+    }
+    window.BridgePrint.print(makeText());
+  }
+
   function initReceipt(receiptType) {
     var orderId = getQueryParam("order");
 
@@ -1325,339 +1341,108 @@
     var content = document.getElementById("receiptContent");
     if (content) content.hidden = false;
 
-   /* =========================================================
-   KOT RECEIPT
-   - Always show all kitchen items
-   - New orders: all items selected by default
-   - Edited orders: only newly added / quantity-changed items
-     are selected by default; unchanged items start unchecked
-   - User can adjust the selection before printing
-   - No print history
-========================================================= */
+    /* =========================================================
+       KOT RECEIPT
+       - Always show all kitchen items
+       - New orders: all items selected by default
+       - Edited orders: only newly added / quantity-changed items
+         are selected by default; unchanged items start unchecked
+       - User can adjust the selection before printing
+       - "Print" sends the selected items to the Thermal Bridge app
+    ========================================================= */
 
-if (receiptType !== "bill") {
+    if (receiptType !== "bill") {
 
-    var tableEl = document.getElementById("receiptTable");
+      var tableEl = document.getElementById("receiptTable");
+      if (tableEl) tableEl.textContent = order.tableNumber || "\u2014";
 
-    if (tableEl) {
-        tableEl.textContent = order.tableNumber || "—";
-    }
+      var body = document.getElementById("receiptItems");
+      var printBtn = document.getElementById("printBtn");
+      var selectAllBtn = document.getElementById("selectAllBtn");
+      var clearAllBtn = document.getElementById("clearAllBtn");
 
+      if (!body) return;
 
-    var body = document.getElementById("receiptItems");
+      // All items for this kitchen
+      var items = renderReceiptItems(order, receiptType);
 
-    var printBtn = document.getElementById("printBtn");
+      clearNode(body);
 
-    var selectAllBtn = document.getElementById("selectAllBtn");
-
-    var clearAllBtn = document.getElementById("clearAllBtn");
-
-
-    if (!body) return;
-
-
-    /*
-       Get all items for this kitchen
-    */
-    var items = renderReceiptItems(
-        order,
-        receiptType
-    );
-
-
-    clearNode(body);
-
-
-    if (!items.length) {
-
-        body.appendChild(
-            el(
-                "p",
-                {
-                    class:"receipt-empty"
-                },
-                "No items for this kitchen."
-            )
-        );
-
-
+      if (!items.length) {
+        body.appendChild(el("p", { class: "receipt-empty" }, "No items for this kitchen."));
         return;
-    }
+      }
 
+      // Render every item with a checkbox
+      items.forEach(function (it, index) {
+        var row = el("div", { class: "receipt-row kot-select-item" });
+        var checkboxId = "kot-item-" + index;
 
+        var label = el("label", { class: "kot-select-label", "for": checkboxId });
 
-    /*
-       Render every item with checkbox
-    */
-
-    items.forEach(function(it,index){
-
-        var row = el(
-            "div",
-            {
-                class:"receipt-row kot-select-item"
-            }
-        );
-
-
-        var checkboxId =
-            "kot-item-" + index;
-
-
-
-        var label = el(
-            "label",
-            {
-                class:"kot-select-label",
-                "for":checkboxId
-            }
-        );
-
-
-        var checkbox = el(
-            "input",
-            {
-                id:checkboxId,
-                class:"kot-select-checkbox",
-                type:"checkbox",
-                "data-index":index
-            }
-        );
-
+        var checkbox = el("input", {
+          id: checkboxId,
+          class: "kot-select-checkbox",
+          type: "checkbox",
+          "data-index": index
+        });
         checkbox.checked = isEditedKotItem(order, it);
 
+        var name = it.name + (it.portion !== "Regular" ? " (" + it.portion + ")" : "");
 
+        label.appendChild(checkbox);
+        label.appendChild(el("span", { class: "receipt-row-name" }, name));
 
-        var name =
-            it.name +
-            (
-                it.portion !== "Regular"
-                ?
-                " (" + it.portion + ")"
-                :
-                ""
-            );
-
-
-        label.appendChild(
-            checkbox
-        );
-
-
-        label.appendChild(
-            el(
-                "span",
-                {
-                    class:"receipt-row-name"
-                },
-                name
-            )
-        );
-
-
-        var qty = el(
-            "span",
-            {
-                class:"receipt-row-qty"
-            },
-            "x" + safeQuantity(it.quantity)
-        );
-
+        var qty = el("span", { class: "receipt-row-qty" }, "x" + safeQuantity(it.quantity));
 
         row.appendChild(label);
-
         row.appendChild(qty);
-
-
         body.appendChild(row);
+      });
 
-    });
-
-
-
-    /*
-       Select All
-    */
-
-    if(selectAllBtn){
-
-        selectAllBtn.onclick=function(){
-
-            body
-            .querySelectorAll(".kot-select-checkbox")
-            .forEach(function(cb){
-
-                cb.checked=true;
-
-            });
-
+      // Select All
+      if (selectAllBtn) {
+        selectAllBtn.onclick = function () {
+          body.querySelectorAll(".kot-select-checkbox").forEach(function (cb) { cb.checked = true; });
         };
+      }
 
-    }
-
-
-
-    /*
-       Clear All
-    */
-
-    if(clearAllBtn){
-
-        clearAllBtn.onclick=function(){
-
-            body
-            .querySelectorAll(".kot-select-checkbox")
-            .forEach(function(cb){
-
-                cb.checked=false;
-
-            });
-
+      // Clear All
+      if (clearAllBtn) {
+        clearAllBtn.onclick = function () {
+          body.querySelectorAll(".kot-select-checkbox").forEach(function (cb) { cb.checked = false; });
         };
+      }
 
-    }
+      // Print Selected -> thermal printer through the bridge app
+      if (printBtn) {
+        printBtn.onclick = function () {
+          var selected = [];
+          body.querySelectorAll(".kot-select-checkbox:checked").forEach(function (cb) {
+            selected.push(items[Number(cb.getAttribute("data-index"))]);
+          });
 
+          if (!selected.length) {
+            alert("Please select at least one item.");
+            return;
+          }
 
-
-    /*
-       Print Selected
-    */
-
-    if(printBtn){
-
-        printBtn.onclick=function(){
-
-
-            var selected=[];
-
-
-
-            body
-            .querySelectorAll(
-                ".kot-select-checkbox:checked"
-            )
-            .forEach(function(cb){
-
-
-                var index =
-                    Number(
-                        cb.getAttribute(
-                            "data-index"
-                        )
-                    );
-
-
-                selected.push(
-                    items[index]
-                );
-
-
-            });
-
-
-
-            if(!selected.length){
-
-                alert(
-                    "Please select at least one item."
-                );
-
-                return;
-
-            }
-
-
-
-            /*
-              Temporarily replace receipt items
-              with selected items only
-            */
-
-            clearNode(body);
-
-
-
-            selected.forEach(function(it){
-
-                var row =
-                    el(
-                        "div",
-                        {
-                            class:"receipt-row"
-                        }
-                    );
-
-
-                row.appendChild(
-                    el(
-                        "span",
-                        {
-                            class:"receipt-row-name"
-                        },
-                        it.name +
-                        (
-                            it.portion !== "Regular"
-                            ?
-                            " (" + it.portion + ")"
-                            :
-                            ""
-                        )
-                    )
-                );
-
-
-                row.appendChild(
-                    el(
-                        "span",
-                        {
-                            class:"receipt-row-qty"
-                        },
-                        "x" +
-                        safeQuantity(
-                            it.quantity
-                        )
-                    )
-                );
-
-
-                body.appendChild(row);
-
-            });
-
-
-
-            window.print();
-
-
-            /*
-              Restore complete list after print
-            */
-
-            setTimeout(
-                function(){
-
-                    location.reload();
-
-                },
-                500
-            );
-
-
+          sendToPrinter(function () {
+            return window.BridgePrint.buildKot(order, selected);
+          });
         };
+      }
 
+      return;
     }
-
-
-    return;
-
-}
 
     /* =========================================================
        BILL RECEIPT
-       Existing bill functionality remains unchanged.
-       ========================================================= */
+       Shows all items with prices and the total.
+       "Print" sends the bill to the Thermal Bridge app.
+    ========================================================= */
 
-    var items = renderReceiptItems(order, "all");
+    var billItems = renderReceiptItems(order, "all");
 
     var restaurantEl = document.getElementById("receiptRestaurant");
     if (restaurantEl) restaurantEl.textContent = RESTAURANT_NAME;
@@ -1676,12 +1461,12 @@ if (receiptType !== "bill") {
 
     clearNode(bodyBill);
 
-    if (!items.length) {
+    if (!billItems.length) {
       bodyBill.appendChild(
         el("p", { class: "receipt-empty" }, "This order has no billable items.")
       );
     } else {
-      items.forEach(function (it) {
+      billItems.forEach(function (it) {
         var row = el("div", { class: "receipt-row" });
         var nameCol = el(
           "span",
@@ -1691,11 +1476,8 @@ if (receiptType !== "bill") {
         var qtyCol = el("span", { class: "receipt-row-qty" }, "x" + safeQuantity(it.quantity));
         row.appendChild(nameCol);
         row.appendChild(qtyCol);
-
-        if (receiptType === "bill") {
-          row.appendChild(el("span", { class: "receipt-row-price" }, formatCurrency(it.price)));
-          row.appendChild(el("span", { class: "receipt-row-subtotal" }, formatCurrency(it.price * it.quantity)));
-        }
+        row.appendChild(el("span", { class: "receipt-row-price" }, formatCurrency(it.price)));
+        row.appendChild(el("span", { class: "receipt-row-subtotal" }, formatCurrency(it.price * it.quantity)));
         bodyBill.appendChild(row);
       });
     }
@@ -1711,10 +1493,18 @@ if (receiptType !== "bill") {
     var printBtnBill = document.getElementById("printBtn");
     if (printBtnBill) {
       printBtnBill.onclick = function () {
-        window.print();
+        sendToPrinter(function () {
+          return window.BridgePrint.buildBill(
+            order,
+            billItems,
+            RESTAURANT_NAME,
+            formatDateTime(order.updatedAt)
+          );
+        });
       };
     }
   }
+
   // ---------------------------------------------------------------------
   // 8. SERVICE WORKER REGISTRATION (safe, non-blocking)
   // ---------------------------------------------------------------------
